@@ -1,0 +1,27 @@
+{
+    "manifest_version": 3,
+    "name": "BetterPrompt",
+    "version": "1.0.0",
+    "description": "A better prompt composer for stable diffusion",
+    "content_scripts": [
+        {
+            "matches": [
+                "*://localhost/*"
+            ],
+            "js": [
+                "main.js"
+            ],
+            "run_at": "document_start"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "src/*"
+            ],
+            "matches": [
+                "*://localhost/*"
+            ]
+        }
+    ]
+}
