@@ -20,11 +20,6 @@ const resolutions = [
     [1536, 640, "21:9"],
 ]
 
-function updateInput(input, value) {
-    input.value = value
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-}
-
 class Editor {
     constructor(tab) {
         this.tab = tab
@@ -43,6 +38,7 @@ class Editor {
                 <div this=nodesfield class="NodeFeild"></div>
                 <div class="footer">
                     <div this=add_node class="Compose">Add Node</div>
+                    <div this=add_break class="Compose">Add BREAK</div>
                     <div this=compose class="Compose">Compose</div>
                 </div>
                 <div this=presets class="footer">
@@ -59,6 +55,12 @@ class Editor {
             const text_node = new TextNode(this, {})
             this.nodesfield.append(text_node.main)
             this.nodes.push(text_node)
+        })
+
+        this.add_break.addEventListener('click', () => {
+            const break_node = new BreakNode(this, {})
+            this.nodesfield.append(break_node.main)
+            this.nodes.push(break_node)
         })
 
         this.export.addEventListener('click', () => {
@@ -82,16 +84,23 @@ class Editor {
     }
 
     loadJson(json) {
-        this.nodesfield.innerHTML = ''
-        this.nodes = []
-        for (const node of json) {
-            if (node.type === 'text') {
-                const text_node = new TextNode(this, node)
-                this.nodesfield.append(text_node.main)
-                this.nodes.push(text_node)
-            }
-        }
+        this.nodes = [];
+        this.loadNodes(json)
+        this.reflectJson()
         this.composePrompt()
+    }
+
+    loadNodes(json) {
+        for (const node of json) {
+            const { type } = node
+            const newNode = type === 'text' ? new TextNode(this, node) : new BreakNode(this, node)
+            this.nodes.push(newNode)
+        }
+    }
+
+    reflectJson() {
+        this.nodesfield.innerHTML = ''
+        this.nodes.forEach(node => this.nodesfield.append(node.main))
     }
 
     removeNode(node) {
@@ -101,7 +110,7 @@ class Editor {
     }
 
     composePrompt() {
-        const prompt = this.nodes.map(node => node.toPrompt()).filter(Boolean).join(', ')
+        const prompt = this.nodes.map(node => node.toPrompt()).filter(Boolean).join(' ')
         updateInput(this.textarea, prompt)
     }
 
@@ -138,10 +147,22 @@ class Node {
             <div class="Controls">
                 <div class=Button this="remove">X</div>
                 <div class=Button this="mute">Mute</div>
+                <div class="Sort">
+                    <button this=up class=Button>↑</button>
+                    <button this=down class=Button>↓</button>
+                </div>
             </div>
             <div class=NodeArea this=nodearea></div>
         </div>
         `.bind(this)
+
+        this.up.addEventListener('click', () => {
+            this.reorder(-1)
+        })
+
+        this.down.addEventListener('click', () => {
+            this.reorder(1)
+        })
 
         this.remove.addEventListener('click', () => {
             this.editor.removeNode(this)
@@ -159,6 +180,11 @@ class Node {
         }
 
         this.domEffect()
+    }
+
+    reorder(direction) {
+        this.editor.nodes = reorderElement(this.editor.nodes, this, direction)
+        this.editor.reflectJson()
     }
 
     isMuted() {
@@ -202,10 +228,47 @@ class TextNode extends Node {
     toPrompt() {
         if (this.isMuted()) return false
         const value = this.getJson().value
-        return value.replace(/\n/g, ', ').replace(/,+/g, ',').replace(/  +/g, ' ')
+        return value.replace(/\n/g, ' ').replace(/,+/g, ',').replace(/  +/g, ' ')
     }
 }
 
+class BreakNode extends Node {
+    constructor(editor, initialJson) {
+        super(editor, {
+            name: 'Break Node',
+            type: 'break',
+            value: 'break',
+            ...initialJson
+        })
+
+        html`
+            <form class=Options this=options name=type>
+                <label><input type=radio name=type value=break />Break</label>
+                <label><input type=radio name=type value=addcomm />Common</label>
+                <label><input type=radio name=type value=addrow />Row</label>
+                <label><input type=radio name=type value=addcol />Col</label>
+            </form>
+        `.bind(this).appendTo(this.nodearea)
+
+        this.options.addEventListener('change', () => {
+            const value = this.options.querySelector('input:checked').value
+            this.assignJson({ value })
+        })
+
+        this.reflectJson()
+    }
+
+    reflectJson() {
+        const value = this.getJson().value
+        this.options.querySelector(`input[value=${value}]`).checked = true
+    }
+
+    toPrompt() {
+        if (this.isMuted()) return false
+        const value = this.getJson().value
+        return `${value.toUpperCase()}\n`
+    }
+}
 
 css`
 .tabitem > .gap > .BetterPromptComposer {
@@ -273,9 +336,9 @@ css`
                 gap: 4px;
                 height: max-content;
 
-                & > .Button {
+                & .Button {
                     font-size: 13px;
-                    padding: 5px;
+                    padding: 0 5px;
                     background: #4b5563;
                 }
             }
@@ -289,6 +352,24 @@ css`
                     width: 100%;
                     color: white;
                 }
+
+                & > .Options {
+                    display: flex;
+                    gap: 5px;
+
+                    & label {
+                        display: flex;
+                        gap: 5px;
+                        align-items: center;
+                    }
+
+                    & input[type="radio"] {
+                        background-color: #232739;
+                        border-radius: 100%;
+                    }
+
+                }
+
             }
 
         }
@@ -303,3 +384,18 @@ css`
 
 }
 `
+
+function reorderElement(array, element, offset) {
+    const index = array.indexOf(element)
+    const newIndex = index + offset
+    if (newIndex < 0 || newIndex >= array.length) return array
+    const newArray = [...array]
+    newArray.splice(index, 1)
+    newArray.splice(newIndex, 0, element)
+    return newArray
+}
+
+function updateInput(input, value) {
+    input.value = value
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+}
