@@ -41,7 +41,7 @@ class Editor {
         this.compose.addEventListener('click', this.composePrompt.bind(this))
 
         this.add_node.addEventListener('click', () => {
-            const text_node = new TextNode()
+            const text_node = new TextNode(this, {})
             this.nodesfield.append(text_node.main)
             this.nodes.push(text_node)
         })
@@ -69,11 +69,13 @@ class Editor {
                 this.nodes.push(text_node)
             }
         }
+        this.composePrompt()
     }
 
     removeNode(node) {
         this.nodesfield.removeChild(node.main)
         this.nodes = this.nodes.filter(n => n !== node)
+        this.composePrompt()
     }
 
     composePrompt() {
@@ -105,12 +107,16 @@ class Node {
         html`
         <div class="Node" this="main">
             <div class="Controls">
-                <div class=Button this="mute">X</div>
+                <div class=Button this="remove">X</div>
                 <div class=Button this="mute">Mute</div>
             </div>
             <div class=NodeArea this=nodearea></div>
         </div>
         `.bind(this)
+
+        this.remove.addEventListener('click', () => {
+            this.editor.removeNode(this)
+        })
 
         this.mute.addEventListener('click', () => {
             this.#json.hidden = !this.#json.hidden
@@ -225,14 +231,24 @@ css`
 
         & > .Node {
             border: 1px solid #ffffff40;
-            padding: 5px;
+            padding: 2px;
             border-radius: 5px;
             display: flex;
             gap: 5px;
+            height: min-content;
 
             & > .Controls {
                 user-select: none;
-                padding: 5px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                height: max-content;
+
+                & > .Button {
+                    font-size: 13px;
+                    padding: 5px;
+                    background: #4b5563;
+                }
             }
             & > .NodeArea {
                 flex-grow: 1;
