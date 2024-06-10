@@ -6,7 +6,8 @@
     "content_scripts": [
         {
             "matches": [
-                "*://localhost/*"
+                "*://localhost/*",
+                "*://127.0.0.1/*"
             ],
             "js": [
                 "main.js"
@@ -20,7 +21,8 @@
                 "src/*"
             ],
             "matches": [
-                "*://localhost/*"
+                "*://localhost/*",
+                "*://127.0.0.1/*"
             ]
         }
     ]

@@ -2,8 +2,6 @@ import zyX, { html, css } from './zyX-es6.js'
 import observe from './observer.js'
 
 console.log('[BetterPrompt] main.js loaded.')
-
-
 observe(document.body, "#tabs", (tabs) => {
     console.log('#tabs', tabs)
     const txt2img_tab = tabs.querySelector('#tab_txt2img')
@@ -12,6 +10,20 @@ observe(document.body, "#tabs", (tabs) => {
     new Editor(img2img_tab)
 })
 
+const resolutions = [
+    [640, 1536, "9:21"],
+    [768, 1344, "9:16"],
+    [896, 1152, "3:4"],
+    [1024, 1024, "1:1"],
+    [1152, 896, "4:3"],
+    [1344, 768, "16:9"],
+    [1536, 640, "21:9"],
+]
+
+function updateInput(input, value) {
+    input.value = value
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+}
 
 class Editor {
     constructor(tab) {
@@ -32,6 +44,9 @@ class Editor {
                 <div class="footer">
                     <div this=add_node class="Compose">Add Node</div>
                     <div this=compose class="Compose">Compose</div>
+                </div>
+                <div this=presets class="footer">
+                    ${resolutions.map(([w, h, t]) => html`<div class=Button resolution="${w}*${h}" title="${t}">${w}x${h}</div>`)}
                 </div>
             </div>
         `
@@ -57,6 +72,13 @@ class Editor {
         })
 
         tab.firstElementChild.prepend(this.main)
+
+        this.presets.addEventListener('click', (e) => {
+            const target = e.target.closest('[resolution]')
+            if (!target) return
+            const [width, height] = target.getAttribute('resolution').split('*')
+            this.setGenWidthHeight(width, height)
+        })
     }
 
     loadJson(json) {
@@ -80,9 +102,16 @@ class Editor {
 
     composePrompt() {
         const prompt = this.nodes.map(node => node.toPrompt()).filter(Boolean).join(', ')
-        this.textarea.value = prompt
-        this.textarea.dispatchEvent(new Event('input', { bubbles: true }))
+        updateInput(this.textarea, prompt)
     }
+
+    setGenWidthHeight(width, height) {
+        const controlls = this.tab.querySelectorAll(`#component-95 .form > div input[type="number"]`);
+        const [widthInput, heightInput] = controlls;
+        width !== undefined && updateInput(widthInput, width);
+        height !== undefined && updateInput(heightInput, height);
+    }
+
 }
 
 /**
@@ -268,9 +297,9 @@ css`
 
     & .footer {
         display: flex;
-        justify-content: space-between;
         padding: .5em;
-    }   
+        gap: 5px;
+    }
 
 }
 `
