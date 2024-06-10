@@ -75,7 +75,7 @@ class Editor {
     }
 
     composePrompt() {
-        const prompt = this.nodes.map(node => node.toPrompt()).join(', ')
+        const prompt = this.nodes.map(node => node.toPrompt()).filter(Boolean).join(', ')
         this.textarea.value = prompt
         this.textarea.dispatchEvent(new Event('input', { bubbles: true }))
     }
