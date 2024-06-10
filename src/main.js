@@ -48,7 +48,7 @@ class Editor {
 
         this.export.addEventListener('click', () => {
             const json = this.nodes.map(node => node.getJson())
-            navigator.clipboard.writeText(JSON.stringify(json))
+            navigator.clipboard.writeText(JSON.stringify(json, null, 4))
         })
 
         this.import.addEventListener('click', () => {
@@ -64,11 +64,16 @@ class Editor {
         this.nodes = []
         for (const node of json) {
             if (node.type === 'text') {
-                const text_node = new TextNode(node)
+                const text_node = new TextNode(this, node)
                 this.nodesfield.append(text_node.main)
                 this.nodes.push(text_node)
             }
         }
+    }
+
+    removeNode(node) {
+        this.nodesfield.removeChild(node.main)
+        this.nodes = this.nodes.filter(n => n !== node)
     }
 
     composePrompt() {
@@ -94,10 +99,13 @@ class Node {
     /**
     * @param {PromptNode} initialJson
     */
-    constructor(initialJson) {
+    constructor(editor, initialJson) {
+        this.editor = editor
+
         html`
         <div class="Node" this="main">
             <div class="Controls">
+                <div class=Button this="mute">X</div>
                 <div class=Button this="mute">Mute</div>
             </div>
             <div class=NodeArea this=nodearea></div>
@@ -127,11 +135,6 @@ class Node {
         this.main.style.opacity = this.#json.hidden ? 0.5 : 1
     }
 
-    toPrompt() {
-        if (this.is_muted) return ''
-        return this.#json.value.replace(/\n/g, ', ')
-    }
-
     getJson() {
         return this.#json
     }
@@ -143,13 +146,14 @@ class Node {
 }
 
 class TextNode extends Node {
-    constructor(initialJson) {
-        super({
+    constructor(editor, initialJson) {
+        super(editor, {
             name: 'Text Node',
             type: 'text',
             value: '',
             ...initialJson
         })
+
         const value = this.getJson().value
         html`
             <textarea class=BasicText this=textarea style="height: 42px;">${value}</textarea>
