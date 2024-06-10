@@ -21,11 +21,17 @@ class Editor {
 
         html`
             <div this=main class="BetterPromptComposer">
-                <label class="title">BetterPrompt Editor</label>
+                <div class="Header">
+                    <label class="title">BetterPrompt Editor</label>
+                    <div class="RightSide">
+                        <div this=export class="Button">Export Json</div>
+                        <div this=import class="Button">Import Json</div>
+                    </div>
+                </div>
                 <div this=nodesfield class="NodeFeild"></div>
                 <div class="footer">
-                    <div this=compose class="Compose">Compose</div>
                     <div this=add_node class="Compose">Add Node</div>
+                    <div this=compose class="Compose">Compose</div>
                 </div>
             </div>
         `
@@ -35,52 +41,78 @@ class Editor {
         this.compose.addEventListener('click', this.composePrompt.bind(this))
 
         this.add_node.addEventListener('click', () => {
-            const text_node = new Node()
+            const text_node = new TextNode()
             this.nodesfield.append(text_node.main)
             this.nodes.push(text_node)
+        })
+
+        this.export.addEventListener('click', () => {
+            const json = this.nodes.map(node => node.json)
+            navigator.clipboard.writeText(JSON.stringify(json))
+        })
+
+        this.import.addEventListener('click', () => {
+            const json = prompt('Enter json')
+            this.loadJson(JSON.parse(json))
         })
 
         tab.firstElementChild.prepend(this.main)
     }
 
+    loadJson(json) {
+        this.nodesfield.innerHTML = ''
+        this.nodes = []
+        for (const node of json) {
+            if (node.type === 'text') {
+                const text_node = new TextNode()
+                text_node.json = node
+                text_node.textarea.value = node.value
+                text_node.textarea.dispatchEvent(new Event('input', { bubbles: true }))
+                this.nodesfield.append(text_node.main)
+                this.nodes.push(text_node)
+            }
+        }
+    }
+
     composePrompt() {
-        const prompt = this.nodes.map(node => node.toPrompt()).join('\n')
+        const prompt = this.nodes.map(node => node.toPrompt()).join(', ')
         this.textarea.value = prompt
         this.textarea.dispatchEvent(new Event('input', { bubbles: true }))
     }
 }
 
-class Node {
+class TextNode {
     constructor() {
         html`
         <div class="Node" this="main">
             <div class="Controls">
                 <div class=Button this="mute">Mute</div>
-                <div class=Button this="solo">Solo</div>
             </div>
-            <textarea class=BasicText this=textarea></textarea>
+            <textarea class=BasicText this=textarea style="height: 43px;"></textarea>
         </div>
         `.bind(this)
 
         this.is_muted = false
-        this.is_solo = false
 
         this.mute.addEventListener('click', () => {
             this.is_muted = !this.is_muted
             this.mute.textContent = this.is_muted ? 'Unmute' : 'Mute'
+            this.main.style.opacity = this.is_muted ? 0.5 : 1
         })
 
-        this.solo.addEventListener('click', () => {
-            this.is_solo = !this.is_solo
-            this.solo.textContent = this.is_solo ? 'Unsolo' : 'Solo'
-        })
+        this.json = {
+            type: 'text',
+            value: ''
+        }
 
-        this.value = ''
+        this.textarea.addEventListener('input', () => {
+            this.json.value = this.textarea.value
+        })
     }
 
     toPrompt() {
         if (this.is_muted) return ''
-        return this.textarea.value;
+        return this.json.value.replace(/\n/g, ', ')
     }
 
 }
@@ -95,6 +127,29 @@ css`
     border: 1px solid #374151;
     border-radius: 5px;
     padding: .5em;
+
+    & .Button {
+        padding: .5em;
+        background: #4b5563;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    & .Header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ffffff3d;
+        padding: .5em;
+        & .title {
+            color: white;
+        }
+        & .RightSide {
+            display: flex;
+            gap: 5px;
+        }
+    }
 
     & .Compose {
         display: block;
@@ -124,9 +179,6 @@ css`
             & > .Controls {
                 user-select: none;
                 padding: 5px;
-                &>.Button {
-                    cursor: pointer;
-                }
             }
 
             & > .BasicText {
@@ -140,6 +192,12 @@ css`
         }
 
     }
+
+    & .footer {
+        display: flex;
+        justify-content: space-between;
+        padding: .5em;
+    }   
 
 }
 `
