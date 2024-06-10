@@ -47,7 +47,7 @@ class Editor {
         })
 
         this.export.addEventListener('click', () => {
-            const json = this.nodes.map(node => node.json)
+            const json = this.nodes.map(node => node.getJson())
             navigator.clipboard.writeText(JSON.stringify(json))
         })
 
@@ -64,10 +64,7 @@ class Editor {
         this.nodes = []
         for (const node of json) {
             if (node.type === 'text') {
-                const text_node = new TextNode()
-                text_node.json = node
-                text_node.textarea.value = node.value
-                text_node.textarea.dispatchEvent(new Event('input', { bubbles: true }))
+                const text_node = new TextNode(node)
                 this.nodesfield.append(text_node.main)
                 this.nodes.push(text_node)
             }
@@ -81,40 +78,93 @@ class Editor {
     }
 }
 
-class TextNode {
-    constructor() {
+/**
+* @typedef {Object} PromptNode
+* @property {string} name
+* @property {string} type
+* @property {string} value
+* @property {string} weight
+* @property {boolean} hidden
+*/
+
+class Node {
+    /** @type {PromptNode} */
+    #json = {}
+
+    /**
+    * @param {PromptNode} initialJson
+    */
+    constructor(initialJson) {
         html`
         <div class="Node" this="main">
             <div class="Controls">
                 <div class=Button this="mute">Mute</div>
             </div>
-            <textarea class=BasicText this=textarea style="height: 43px;"></textarea>
+            <div class=NodeArea this=nodearea></div>
         </div>
         `.bind(this)
 
-        this.is_muted = false
-
         this.mute.addEventListener('click', () => {
-            this.is_muted = !this.is_muted
-            this.mute.textContent = this.is_muted ? 'Unmute' : 'Mute'
-            this.main.style.opacity = this.is_muted ? 0.5 : 1
+            this.#json.hidden = !this.#json.hidden
+            this.domEffect()
         })
 
-        this.json = {
-            type: 'text',
-            value: ''
+        this.#json = {
+            hidden: false,
+            weight: 1,
+            ...initialJson
         }
 
-        this.textarea.addEventListener('input', () => {
-            this.json.value = this.textarea.value
-        })
+        this.domEffect()
+    }
+
+    isMuted() {
+        return this.#json.hidden
+    }
+
+    domEffect() {
+        this.mute.textContent = this.#json.hidden ? 'Unmute' : 'Mute'
+        this.main.style.opacity = this.#json.hidden ? 0.5 : 1
     }
 
     toPrompt() {
         if (this.is_muted) return ''
-        return this.json.value.replace(/\n/g, ', ')
+        return this.#json.value.replace(/\n/g, ', ')
     }
 
+    getJson() {
+        return this.#json
+    }
+
+    assignJson(json) {
+        Object.assign(this.#json, json)
+    }
+
+}
+
+class TextNode extends Node {
+    constructor(initialJson) {
+        super({
+            name: 'Text Node',
+            type: 'text',
+            value: '',
+            ...initialJson
+        })
+        const value = this.getJson().value
+        html`
+            <textarea class=BasicText this=textarea style="height: 42px;">${value}</textarea>
+        `.bind(this).appendTo(this.nodearea)
+
+        this.textarea.addEventListener('input', () => {
+            this.assignJson({ value: this.textarea.value })
+        })
+    }
+
+    toPrompt() {
+        if (this.isMuted()) return false
+        const value = this.getJson().value
+        return value.replace(/\n/g, ', ').replace(/,+/g, ',').replace(/  +/g, ' ')
+    }
 }
 
 
@@ -180,13 +230,16 @@ css`
                 user-select: none;
                 padding: 5px;
             }
+            & > .NodeArea {
+                flex-grow: 1;
 
-            & > .BasicText {
-                background: unset;
-                border-radius: 5px;
-                min-height: 1em;
-                width: 100%;
-                color: white;
+                & > .BasicText {
+                    background: unset;
+                    border-radius: 5px;
+                    min-height: 1em;
+                    width: 100%;
+                    color: white;
+                }
             }
 
         }
