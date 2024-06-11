@@ -4,10 +4,8 @@ import observe from './observer.js'
 console.log('[BetterPrompt] main.js loaded!!!')
 observe(document.body, "#tabs", (tabs) => {
     console.log('#tabs', tabs)
-    const txt2img_tab = tabs.querySelector('#tab_txt2img')
-    const img2img_tab = tabs.querySelector('#tab_img2img')
-    new Editor(txt2img_tab)
-    new Editor(img2img_tab)
+    new Editor(tabs, "txt2img")
+    new Editor(tabs, "img2img")
 })
 
 const resolutions = [
@@ -21,8 +19,12 @@ const resolutions = [
 ]
 
 class Editor {
-    constructor(tab) {
-        this.tab = tab
+    constructor(tabs, tabname) {
+        this.tabs = tabs
+        this.tabname = tabname
+        this.tab = tabs.querySelector(`#tab_${this.tabname}`)
+        if (!this.tab) return console.error(`Tab ${this.tabname} not found`)
+
         this.nodes = []
         this.textarea = this.tab.querySelector('textarea')
         this.textareacontent = ""
@@ -61,7 +63,6 @@ class Editor {
             const break_node = new BreakNode(this, {})
             this.insertNode(break_node)
             this.reflectNodes()
-
         })
 
         this.export.addEventListener('click', () => {
@@ -71,16 +72,19 @@ class Editor {
 
         this.import.addEventListener('click', () => {
             const json = prompt('Enter json')
-            this.loadJson(JSON.parse(json))
+            if (!json) return
+            const parsed = JSON.parse(json)
+            if (!Array.isArray(parsed)) return
+            this.loadJson(parsed)
         })
 
-        tab.firstElementChild.prepend(this.main)
+        this.tab.firstElementChild.prepend(this.main)
 
         this.presets.addEventListener('click', (e) => {
             const target = e.target.closest('[resolution]')
             if (!target) return
             const [width, height] = target.getAttribute('resolution').split('*')
-            this.setGenWidthHeight(width, height)
+            this.setWidthHeightParams(width, height)
         })
 
         this.insertNode(new TextNode(this, {}))
@@ -123,11 +127,13 @@ class Editor {
         updateInput(this.textarea, prompt)
     }
 
-    setGenWidthHeight(width, height) {
-        const controlls = this.tab.querySelectorAll(`#component-95 .form > div input[type="number"]`);
-        const [widthInput, heightInput] = controlls;
-        width !== undefined && updateInput(widthInput, width);
-        height !== undefined && updateInput(heightInput, height);
+    getSizeInput(axis) {
+        return this.tab.querySelector(`#${this.tabname}_${axis} input[type="number"]`);
+    }
+
+    setWidthHeightParams(width, height) {
+        width !== undefined && updateInput(this.getSizeInput("width"), width);
+        height !== undefined && updateInput(this.getSizeInput("height"), height);
     }
 
 }
