@@ -1,5 +1,10 @@
-Add region node
-Drag node to rearrange
-Copy state to json
-Load state from json
-Compose before generate option
+### To get donerinoed
+- Groups
+- Drag node to rearrange
+- Compose before generate option
+
+#### Did done doed it
+
+- Add region node
+- Copy state to json
+- Load state from json
