@@ -52,14 +52,15 @@ class Editor {
 
         this.add_node.addEventListener('click', () => {
             const text_node = new TextNode(this, {})
-            this.nodesfield.append(text_node.main)
-            this.nodes.push(text_node)
+            this.insertNode(text_node)
+            this.reflectNodes()
         })
 
         this.add_break.addEventListener('click', () => {
             const break_node = new BreakNode(this, {})
-            this.nodesfield.append(break_node.main)
-            this.nodes.push(break_node)
+            this.insertNode(break_node)
+            this.reflectNodes()
+
         })
 
         this.export.addEventListener('click', () => {
@@ -80,12 +81,15 @@ class Editor {
             const [width, height] = target.getAttribute('resolution').split('*')
             this.setGenWidthHeight(width, height)
         })
+
+        this.insertNode(new TextNode(this, {}))
+        this.reflectNodes()
     }
 
     loadJson(json) {
         this.nodes = [];
         this.loadNodes(json)
-        this.reflectJson()
+        this.reflectNodes()
         this.composePrompt()
     }
 
@@ -97,9 +101,13 @@ class Editor {
         }
     }
 
-    reflectJson() {
+    reflectNodes() {
         this.nodesfield.innerHTML = ''
         this.nodes.forEach(node => this.nodesfield.append(node.main))
+    }
+
+    insertNode(node, index) {
+        this.nodes.splice(index || this.nodes.length, 0, node)
     }
 
     removeNode(node) {
@@ -143,12 +151,16 @@ class Node {
 
         html`
         <div class="Node" this="main">
+            <div class=FlotingButtons>
+                <div class=Button this=add_above>↑</div>
+                <div class=Button this=add_below>↓</div>
+            </div>
             <div class="Controls">
                 <div class=Button this="remove">X</div>
                 <div class=Button this="mute">Mute</div>
                 <div class="Sort">
-                    <button this=up class=Button>↑</button>
-                    <button this=down class=Button>↓</button>
+                    <button this=up class=Button>+</button>
+                    <button this=down class=Button>+</button>
                 </div>
             </div>
             <div class=NodeArea this=nodearea></div>
@@ -157,6 +169,18 @@ class Node {
 
         this.up.addEventListener('click', () => this.reorder(-1))
         this.down.addEventListener('click', () => this.reorder(1))
+
+
+        this.add_above.addEventListener('click', () => {
+            const node = new TextNode(this.editor, {})
+            this.editor.insertNode(node, this.editor.nodes.indexOf(this))
+            this.editor.reflectNodes()
+        })
+        this.add_below.addEventListener('click', () => {
+            const node = new TextNode(this.editor, {})
+            this.editor.insertNode(node, this.editor.nodes.indexOf(this) + 1)
+            this.editor.reflectNodes()
+        })
 
         this.remove.addEventListener('click', () => this.editor.removeNode(this))
 
@@ -307,7 +331,7 @@ css`
     & .NodeFeild {
         border: 1px solid #ffffff3d;
         padding: 5px;
-        border-radius: 5px;
+        border-radius: 13px;
         display: flex;
         flex-direction: column;
         gap: 5px;
@@ -315,10 +339,24 @@ css`
         & > .Node {
             border: 1px solid #ffffff40;
             padding: 2px;
-            border-radius: 5px;
+            border-radius: 8px;
             display: flex;
             gap: 5px;
             height: min-content;
+            margin-left: 10px;
+
+            & .FlotingButtons {
+                position: relative;
+                width: 0;
+                font-size: 8px;
+                display: grid;
+                align-content: space-between;
+                height: 100%;
+                left: -16px;
+                & .Button {
+                    padding: 3px;
+                }
+            }
 
             & > .Controls {
                 user-select: none;
