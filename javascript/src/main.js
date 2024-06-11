@@ -1,7 +1,7 @@
 import zyX, { html, css } from './zyX-es6.js'
 import observe from './observer.js'
 
-console.log('[BetterPrompt] main.js loaded?')
+console.log('[BetterPrompt] main.js loaded!!!')
 observe(document.body, "#tabs", (tabs) => {
     console.log('#tabs', tabs)
     const txt2img_tab = tabs.querySelector('#tab_txt2img')
