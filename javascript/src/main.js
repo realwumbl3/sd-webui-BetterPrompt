@@ -47,7 +47,6 @@ class Editor {
             </div>
         `
             .bind(this)
-            .const()
 
         this.compose.addEventListener('click', this.composePrompt.bind(this))
 
