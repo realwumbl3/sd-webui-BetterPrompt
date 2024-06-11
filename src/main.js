@@ -156,21 +156,14 @@ class Node {
         </div>
         `.bind(this)
 
-        this.up.addEventListener('click', () => {
-            this.reorder(-1)
-        })
+        this.up.addEventListener('click', () => this.reorder(-1))
+        this.down.addEventListener('click', () => this.reorder(1))
 
-        this.down.addEventListener('click', () => {
-            this.reorder(1)
-        })
-
-        this.remove.addEventListener('click', () => {
-            this.editor.removeNode(this)
-        })
+        this.remove.addEventListener('click', () => this.editor.removeNode(this))
 
         this.mute.addEventListener('click', () => {
             this.#json.hidden = !this.#json.hidden
-            this.domEffect()
+            this.reflectJson()
         })
 
         this.#json = {
@@ -178,8 +171,7 @@ class Node {
             weight: 1,
             ...initialJson
         }
-
-        this.domEffect()
+        this.reflectJson()
     }
 
     reorder(direction) {
@@ -191,7 +183,7 @@ class Node {
         return this.#json.hidden
     }
 
-    domEffect() {
+    reflectJson() {
         this.mute.textContent = this.#json.hidden ? 'Unmute' : 'Mute'
         this.main.style.opacity = this.#json.hidden ? 0.5 : 1
     }
@@ -255,10 +247,10 @@ class BreakNode extends Node {
             this.assignJson({ value })
         })
 
-        this.reflectJson()
+        this.updateOptions()
     }
 
-    reflectJson() {
+    updateOptions() {
         const value = this.getJson().value
         this.options.querySelector(`input[value=${value}]`).checked = true
     }
