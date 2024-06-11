@@ -25,6 +25,7 @@ class Editor {
         this.tab = tab
         this.nodes = []
         this.textarea = this.tab.querySelector('textarea')
+        this.textareacontent = ""
 
         html`
             <div this=main class="BetterPromptComposer">
@@ -86,6 +87,7 @@ class Editor {
         this.reflectNodes()
     }
 
+
     loadJson(json) {
         this.nodes = [];
         this.loadNodes(json)
@@ -107,7 +109,7 @@ class Editor {
     }
 
     insertNode(node, index) {
-        this.nodes.splice(index || this.nodes.length, 0, node)
+        this.nodes.splice(index ?? this.nodes.length, 0, node)
     }
 
     removeNode(node) {
@@ -152,15 +154,17 @@ class Node {
         html`
         <div class="Node" this="main">
             <div class=FlotingButtons>
-                <div class=Button this=add_above>↑</div>
-                <div class=Button this=add_below>↓</div>
+                <div>
+                    <div class=Button this=add_node>add node</div>
+                    <div class=Button this=add_break>add break</div>
+                </div>
             </div>
             <div class="Controls">
                 <div class=Button this="remove">X</div>
                 <div class=Button this="mute">Mute</div>
                 <div class="Sort">
-                    <button this=up class=Button>+</button>
-                    <button this=down class=Button>+</button>
+                    <button this=up class=Button> ↑ </button>
+                    <button this=down class=Button> ↓ </button>
                 </div>
             </div>
             <div class=NodeArea this=nodearea></div>
@@ -171,14 +175,15 @@ class Node {
         this.down.addEventListener('click', () => this.reorder(1))
 
 
-        this.add_above.addEventListener('click', () => {
+        this.add_node.addEventListener('click', () => {
             const node = new TextNode(this.editor, {})
-            this.editor.insertNode(node, this.editor.nodes.indexOf(this))
+            this.editor.insertNode(node, Math.max(0, this.editor.nodes.indexOf(this)))
             this.editor.reflectNodes()
         })
-        this.add_below.addEventListener('click', () => {
-            const node = new TextNode(this.editor, {})
-            this.editor.insertNode(node, this.editor.nodes.indexOf(this) + 1)
+
+        this.add_break.addEventListener('click', () => {
+            const node = new BreakNode(this.editor, {})
+            this.editor.insertNode(node, Math.max(0, this.editor.nodes.indexOf(this)))
             this.editor.reflectNodes()
         })
 
@@ -199,7 +204,7 @@ class Node {
 
     reorder(direction) {
         this.editor.nodes = reorderElement(this.editor.nodes, this, direction)
-        this.editor.reflectJson()
+        this.editor.reflectNodes()
     }
 
     isMuted() {
@@ -237,7 +242,15 @@ class TextNode extends Node {
 
         this.textarea.addEventListener('input', () => {
             this.assignJson({ value: this.textarea.value })
+            this.resizeToFitScrollheight()
         })
+
+        setTimeout(() => this.resizeToFitScrollheight(), 0)
+    }
+
+    resizeToFitScrollheight() {
+        this.textarea.style.height = 'auto'
+        this.textarea.style.height = `${this.textarea.scrollHeight}px`
     }
 
     toPrompt() {
@@ -334,7 +347,7 @@ css`
         border-radius: 13px;
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 6px;
 
         & > .Node {
             border: 1px solid #ffffff40;
@@ -346,16 +359,33 @@ css`
             margin-left: 10px;
 
             & .FlotingButtons {
-                position: relative;
-                width: 0;
+                position: absolute;
+                width: 20%;
+                height: 0;
                 font-size: 8px;
+                opacity: 0;
                 display: grid;
-                align-content: space-between;
-                height: 100%;
-                left: -16px;
-                & .Button {
-                    padding: 3px;
+
+                & > div {
+                    position: absolute;
+                    display: grid;
+                    grid-auto-flow: column;
+                    left: 30px;
+                    top: -10px;
+                    align-content: space-between;
+                    height: 100%;
                 }
+
+                & .Button {
+                    padding: 0px 20px;
+                    line-height: 7px;
+                    background-color: transparent;
+                    cursor: copy;
+                }
+            }
+
+            &:hover .FlotingButtons {
+                opacity: 1;
             }
 
             & > .Controls {
@@ -380,6 +410,7 @@ css`
                     min-height: 1em;
                     width: 100%;
                     color: white;
+                    padding: 5px;
                 }
 
                 & > .Options {
