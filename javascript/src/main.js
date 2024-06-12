@@ -16,6 +16,9 @@ const resolutions = [
     [1152, 896, "4:3"],
     [1344, 768, "16:9"],
     [1536, 640, "21:9"],
+    [1280, 1280, "1:1"],
+    [1440, 1440, "1:1"],
+    [1600, 1600, "1:1"],
 ]
 
 class Editor {
@@ -40,9 +43,9 @@ class Editor {
                 </div>
                 <div this=nodesfield class="NodeFeild"></div>
                 <div class="footer">
-                    <div this=add_node class="Compose">Add Node</div>
-                    <div this=add_break class="Compose">Add BREAK</div>
-                    <div this=compose class="Compose">Compose</div>
+                    <div this=add_node class="Button">Add Node</div>
+                    <div this=add_break class="Button">Add BREAK</div>
+                    <div this=compose class="Button">Compose</div>
                 </div>
                 <div this=presets class="footer">
                     ${resolutions.map(([w, h, t]) => html`<div class=Button resolution="${w}*${h}" title="${t}">${w}x${h}</div>`)}
@@ -315,7 +318,7 @@ css`
     padding: .5em;
 
     & .Button {
-        padding: .5em;
+        padding: 0 .5em;
         background: #4b5563;
         color: white;
         border-radius: 5px;
@@ -444,7 +447,7 @@ css`
 
     & .footer {
         display: flex;
-        padding: .5em;
+        padding: 0 .5em;
         gap: 5px;
     }
 
