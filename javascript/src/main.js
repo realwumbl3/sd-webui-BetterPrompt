@@ -8,18 +8,7 @@ observe(document.body, "#tabs", (tabs) => {
     new Editor(tabs, "img2img")
 })
 
-const resolutions = [
-    [640, 1536, "9:21"],
-    [768, 1344, "9:16"],
-    [896, 1152, "3:4"],
-    [1024, 1024, "1:1"],
-    [1152, 896, "4:3"],
-    [1344, 768, "16:9"],
-    [1536, 640, "21:9"],
-    [1280, 1280, "1:1"],
-    [1440, 1440, "1:1"],
-    [1600, 1600, "1:1"],
-]
+import "./css.js"
 
 class Editor {
     constructor(tabs, tabname) {
@@ -31,6 +20,7 @@ class Editor {
         this.nodes = []
         this.textarea = this.tab.querySelector('textarea')
         this.textareacontent = ""
+        this.resolutionButtons = resolutions.map(([w, h, t]) => new ResolutionButton(w, h, t))
 
         html`
             <div this=main class="BetterPromptComposer">
@@ -48,7 +38,7 @@ class Editor {
                     <div this=compose class="Button">Compose</div>
                 </div>
                 <div this=presets class="footer">
-                    ${resolutions.map(([w, h, t]) => html`<div class=Button resolution="${w}*${h}" title="${t}">${w}x${h}</div>`)}
+                    ${this.resolutionButtons}
                 </div>
             </div>
         `
@@ -92,8 +82,8 @@ class Editor {
 
         this.insertNode(new TextNode(this, {}))
         this.reflectNodes()
+        this.setUpSizeChangeListener()
     }
-
 
     loadJson(json) {
         this.nodes = [];
@@ -134,11 +124,29 @@ class Editor {
         return this.tab.querySelector(`#${this.tabname}_${axis} input[type="number"]`);
     }
 
+    getSizeSliders(axis) {
+        return this.tab.querySelector(`#${this.tabname}_${axis} input[type="range"]`);
+    }
+
+    getSizeParams() {
+        return ["width", "height"].map(axis => Number(this.getSizeInput(axis).value));
+    }
+
     setWidthHeightParams(width, height) {
         width !== undefined && updateInput(this.getSizeInput("width"), width);
         height !== undefined && updateInput(this.getSizeInput("height"), height);
     }
 
+    setUpSizeChangeListener() {
+        const [width, height] = ["width", "height"].map(axis => this.getSizeInput(axis));
+        const [widthSlider, heightSlider] = ["width", "height"].map(axis => this.getSizeSliders(axis));
+        [width, height, widthSlider, heightSlider].forEach(input => input.addEventListener("input", this.sizeChangeHandler.bind(this)));
+    }
+
+    sizeChangeHandler() {
+        const [width, height] = this.getSizeParams();
+        this.resolutionButtons.forEach(button => button.reflectMatch(width, height));
+    }
 }
 
 /**
@@ -307,152 +315,33 @@ class BreakNode extends Node {
     }
 }
 
-css`
-.tabitem > .gap > .BetterPromptComposer {
-    display: grid;
-    gap: 5px;
-    position: relative;
-    background: #1f2937;
-    border: 1px solid #374151;
-    border-radius: 5px;
-    padding: .5em;
+const resolutions = [
+    [640, 1536, "9:21"],
+    [768, 1344, "9:16"],
+    [896, 1152, "3:4"],
+    [1024, 1024, "1:1"],
+    [1152, 896, "4:3"],
+    [1344, 768, "16:9"],
+    [1536, 640, "21:9"],
+    [1280, 1280, "1:1"],
+    [1440, 1440, "1:1"],
+    [1600, 1600, "1:1"],
+]
 
-    & .Button {
-        padding: 0 .5em;
-        background: #4b5563;
-        color: white;
-        border-radius: 5px;
-        cursor: pointer;
+class ResolutionButton {
+    constructor(w, h, t) {
+        this.res = [w, h]
+        html`<div this=main class="Button Resolution" resolution="${w}*${h}" title="${t}">${w}x${h}</div>`.bind(this)
     }
 
-    & .Header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #ffffff3d;
-        padding: .5em;
-        & .title {
-            color: white;
-        }
-        & .RightSide {
-            display: flex;
-            gap: 5px;
-        }
+    matches(w, h) {
+        return this.res[0] === w && this.res[1] === h
     }
 
-    & .Compose {
-        display: block;
-        padding: .5em;
-        background: #4b5563;
-        color: white;
-        border-radius: 5px;
-        text-align: center;
-        cursor: pointer;
+    reflectMatch(w, h) {
+        this.main.classList.toggle('active', this.matches(w, h))
     }
-
-    & .NodeFeild {
-        border: 1px solid #ffffff3d;
-        padding: 5px;
-        border-radius: 13px;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-
-        & > .Node {
-            border: 1px solid #ffffff40;
-            padding: 2px;
-            border-radius: 8px;
-            display: flex;
-            gap: 5px;
-            height: min-content;
-            margin-left: 10px;
-
-            & .FlotingButtons {
-                position: absolute;
-                width: 20%;
-                height: 0;
-                font-size: 8px;
-                opacity: 0;
-                display: grid;
-
-                & > div {
-                    position: absolute;
-                    display: grid;
-                    grid-auto-flow: column;
-                    left: 30px;
-                    top: -10px;
-                    align-content: space-between;
-                    height: 100%;
-                }
-
-                & .Button {
-                    padding: 0px 20px;
-                    line-height: 7px;
-                    background-color: transparent;
-                    cursor: copy;
-                }
-            }
-
-            &:hover .FlotingButtons {
-                opacity: 1;
-            }
-
-            & > .Controls {
-                user-select: none;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 4px;
-                height: max-content;
-
-                & .Button {
-                    font-size: 13px;
-                    padding: 0 5px;
-                    background: #4b5563;
-                }
-            }
-            & > .NodeArea {
-                flex-grow: 1;
-
-                & > .BasicText {
-                    background: unset;
-                    border-radius: 5px;
-                    min-height: 1em;
-                    width: 100%;
-                    color: white;
-                    padding: 5px;
-                }
-
-                & > .Options {
-                    display: flex;
-                    gap: 5px;
-
-                    & label {
-                        display: flex;
-                        gap: 5px;
-                        align-items: center;
-                    }
-
-                    & input[type="radio"] {
-                        background-color: #232739;
-                        border-radius: 100%;
-                    }
-
-                }
-
-            }
-
-        }
-
-    }
-
-    & .footer {
-        display: flex;
-        padding: 0 .5em;
-        gap: 5px;
-    }
-
 }
-`
 
 function reorderElement(array, element, offset) {
     const index = array.indexOf(element)
