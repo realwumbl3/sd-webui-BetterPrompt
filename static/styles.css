@@ -21,6 +21,8 @@
             background: #4b5563;
             height: 100%;   
             border-radius: 5px;
+            user-select: none;
+            cursor: pointer;
 
             &.Mute {
                 height: 100%;
