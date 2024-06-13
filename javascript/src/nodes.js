@@ -45,7 +45,6 @@ export class Node {
         this.up.addEventListener('click', () => this.reorder(-1))
         this.down.addEventListener('click', () => this.reorder(1))
 
-
         this.add_node.addEventListener('click', () => {
             const node = new TextNode(this.editor, {})
             this.editor.insertNode(node, Math.max(0, this.editor.nodes.indexOf(this)))
@@ -119,7 +118,8 @@ export class TextNode extends Node {
 
     resizeToFitScrollheight() {
         this.textarea.style.height = 'auto'
-        this.textarea.style.height = `${this.textarea.scrollHeight}px`
+        const scrollHeight = Math.max(this.textarea.scrollHeight, 42);
+        this.textarea.style.height = `${scrollHeight}px`
     }
 
     toPrompt() {

@@ -1,11 +1,13 @@
 import zyX, { html, css } from './zyX-es6.js'
 import observe from './observer.js'
 
-console.log('[BetterPrompt] main.js loaded!!!')
+console.log('[BetterPrompt] main.js loaded')
 observe(document.body, "#tabs", (tabs) => {
-    console.log('#tabs', tabs)
-    new Editor(tabs, "txt2img")
-    new Editor(tabs, "img2img")
+    console.log('[BetterPrompt] #tabs', tabs)
+    const tabNav = tabs.querySelector('.tab-nav')
+    const editors = {}
+    editors.txt2img = new Editor(editors, { tabNav, tabs }, "txt2img")
+    editors.img2img = new Editor(editors, { tabNav, tabs }, "img2img")
 })
 
 if (chrome.runtime) css`@import url(${chrome.runtime.getURL('static/styles.css')});`
@@ -15,10 +17,13 @@ import { ResolutionPicker } from './resolutionPicker.js'
 import { TextNode, BreakNode } from './nodes.js'
 
 export class Editor {
-    constructor(tabs, tabname) {
+    constructor(editors, { tabNav, tabs }, tabname) {
+        this.editors = editors
         this.tabs = tabs
+        this.tabNav = tabNav
         this.tabname = tabname
         this.tab = tabs.querySelector(`#tab_${this.tabname}`)
+
         if (!this.tab) return console.error(`Tab ${this.tabname} not found`)
 
         this.nodes = []
@@ -28,10 +33,11 @@ export class Editor {
             <div class="BetterPromptContainer">
                 <div this=main class="BetterPrompt">
                     <div class="Header">
-                        <label class="title">BetterPrompt Editor</label>
+                        <label class="title">⠕ BetterPrompt Editor ⠪</label>
                         <div class="RightSide">
                             <div this=export class="Button">Export Json</div>
                             <div this=import class="Button">Import Json</div>
+                            <div this=send_to_other class="Button">Send to ${this.tabname === 'txt2img' ? 'img2img' : 'txt2img'}</div>
                         </div>
                     </div>
                     <div this=nodesfield class="NodeFeild"></div>
@@ -77,11 +83,28 @@ export class Editor {
             this.loadJson(parsed)
         })
 
+        this.send_to_other.addEventListener('click', this.sendToOtherEditor.bind(this))
+
         this.setUpSizeChangeListener()
         this.setupResolutionButtons()
 
         this.insertNode(new TextNode(this, {}))
         this.reflectNodes()
+
+        console.log('[BetterPrompt] Editor', this)
+    }
+
+    sendToOtherEditor() {
+        const otherTab = this.tabname === 'txt2img' ? 'img2img' : 'txt2img'
+        this.clickTab(otherTab)
+        const otherEditor = this.editors[otherTab]
+        otherEditor.loadJson(this.nodes.map(node => node.getJson()))
+    }
+
+    clickTab(which) {
+        const tabs = Object.fromEntries([...this.tabNav.children].map(tab => [tab.innerText, tab]))
+        const tab = tabs[which]
+        tab.click()
     }
 
     loadJson(json) {
@@ -109,7 +132,7 @@ export class Editor {
     }
 
     reorderNode(node, direction) {
-        this.nodes = reorderElement(this.nodes, node, direction)
+        reorderElement(this.nodes, node, direction)
         this.reflectNodes()
     }
 
@@ -154,8 +177,7 @@ export class Editor {
     }
 
     sizeChangeHandler() {
-        const [width, height] = this.getSizeParams();
-        this.resolutionPicker.updateButtons(width, height);
+        this.resolutionPicker.updateButtons(...this.getSizeParams());
     }
 }
 
