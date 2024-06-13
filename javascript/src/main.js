@@ -8,7 +8,17 @@ observe(document.body, "#tabs", (tabs) => {
     new Editor(tabs, "img2img")
 })
 
-import "./css.js"
+
+if (chrome.runtime) {
+    css`
+        @import url(${chrome.runtime.getURL('static/styles.css')});
+    `
+}else{
+    css`
+        @import url('BetterPrompt/static/styles.css');
+    `
+}
+
 
 class Editor {
     constructor(tabs, tabname) {
@@ -20,29 +30,36 @@ class Editor {
         this.nodes = []
         this.textarea = this.tab.querySelector('textarea')
         this.textareacontent = ""
-        this.resolutionButtons = resolutions.map(([w, h, t]) => new ResolutionButton(w, h, t))
+        this.resolutionButtons = resolutions.map(_ => _ ? new ResolutionButton(..._) : new Separator())
 
         html`
-            <div this=main class="BetterPromptComposer">
-                <div class="Header">
-                    <label class="title">BetterPrompt Editor</label>
-                    <div class="RightSide">
-                        <div this=export class="Button">Export Json</div>
-                        <div this=import class="Button">Import Json</div>
+            <div class="BetterPromptContainer">
+                <div this=main class="BetterPrompt">
+                    <div class="Header">
+                        <label class="title">BetterPrompt Editor</label>
+                        <div class="RightSide">
+                            <div this=export class="Button">Export Json</div>
+                            <div this=import class="Button">Import Json</div>
+                        </div>
                     </div>
-                </div>
-                <div this=nodesfield class="NodeFeild"></div>
-                <div class="footer">
-                    <div this=add_node class="Button">Add Node</div>
-                    <div this=add_break class="Button">Add BREAK</div>
-                    <div this=compose class="Button">Compose</div>
-                </div>
-                <div this=presets class="footer">
-                    ${this.resolutionButtons}
+                    <div this=nodesfield class="NodeFeild"></div>
+                    <div class="EditorFooter">
+                        <div class="leftSide">
+                            <div this=add_node class="Button">Add Node</div>
+                            <div this=add_break class="Button">Add BREAK</div>
+                        </div>
+                        <dev class="rightSide">
+                            <div this=compose class="Button Compose">Compose</div>
+                        </dev>
+                    </div>
+                    <div this=presets class="ExtraFooter">
+                        ${this.resolutionButtons}
+                    </div>
                 </div>
             </div>
         `
             .bind(this)
+            .prependTo(this.tab.firstElementChild)
 
         this.compose.addEventListener('click', this.composePrompt.bind(this))
 
@@ -71,7 +88,6 @@ class Editor {
             this.loadJson(parsed)
         })
 
-        this.tab.firstElementChild.prepend(this.main)
 
         this.presets.addEventListener('click', (e) => {
             const target = e.target.closest('[resolution]')
@@ -145,7 +161,7 @@ class Editor {
 
     sizeChangeHandler() {
         const [width, height] = this.getSizeParams();
-        this.resolutionButtons.forEach(button => button.reflectMatch(width, height));
+        this.resolutionButtons.forEach(button => button.reflectMatch?.(width, height));
     }
 }
 
@@ -157,6 +173,22 @@ class Editor {
 * @property {string} weight
 * @property {boolean} hidden
 */
+
+
+function EyeIcon() {
+    return html`<svg xmlns="http://www.w3.org/2000/svg" fill=white width="14" height="10" viewBox="0 0 24 24">
+        <path d="M15 12c0 1.654-1.346 3-3 3s-3-1.346-3-3 1.346-3 3-3 3 1.346 3 3zm9-.449s-4.252 8.449-11.985 
+        8.449c-7.18 0-12.015-8.449-12.015-8.449s4.446-7.551 12.015-7.551c7.694 0 11.985 7.551 11.985 7.551zm-7 
+        .449c0-2.757-2.243-5-5-5s-5 2.243-5 5 2.243 5 5 5 5-2.243 5-5z"/>
+    </svg>`
+}
+
+css`
+    .EyeIcon {
+        width: 1em;
+        height: 1em;
+    }
+`
 
 class Node {
     /** @type {PromptNode} */
@@ -178,7 +210,7 @@ class Node {
             </div>
             <div class="Controls">
                 <div class=Button this="remove">X</div>
-                <div class=Button this="mute">Mute</div>
+                <div class="Button Mute" this="mute">${EyeIcon}</div>
                 <div class="Sort">
                     <button this=up class=Button> ↑ </button>
                     <button this=down class=Button> ↓ </button>
@@ -229,7 +261,6 @@ class Node {
     }
 
     reflectJson() {
-        this.mute.textContent = this.#json.hidden ? 'Unmute' : 'Mute'
         this.main.style.opacity = this.#json.hidden ? 0.5 : 1
     }
 
@@ -316,16 +347,21 @@ class BreakNode extends Node {
 }
 
 const resolutions = [
-    [640, 1536, "9:21"],
-    [768, 1344, "9:16"],
-    [896, 1152, "3:4"],
-    [1024, 1024, "1:1"],
     [1152, 896, "4:3"],
     [1344, 768, "16:9"],
     [1536, 640, "21:9"],
+    null,
+    [896, 1152, "3:4"],
+    [768, 1344, "9:16"],
+    [640, 1536, "9:21"],
+    null,
+    [1024, 1024, "1:1"],
     [1280, 1280, "1:1"],
     [1440, 1440, "1:1"],
+    null,
     [1600, 1600, "1:1"],
+    [1800, 1800, "1:1"],
+    [2048, 2048, "1:1"],
 ]
 
 class ResolutionButton {
@@ -340,6 +376,12 @@ class ResolutionButton {
 
     reflectMatch(w, h) {
         this.main.classList.toggle('active', this.matches(w, h))
+    }
+}
+
+class Separator {
+    constructor() {
+        html`<div class="Separator"></div>`.bind(this)
     }
 }
 

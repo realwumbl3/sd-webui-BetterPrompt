@@ -9,6 +9,9 @@
                 "*://localhost/*",
                 "*://127.0.0.1/*"
             ],
+            "css'nt": [
+                "static/styles.css"
+            ],
             "js": [
                 "main.js"
             ],
@@ -18,7 +21,8 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "javascript/*"
+                "javascript/*",
+                "static/*"
             ],
             "matches": [
                 "*://localhost/*",
