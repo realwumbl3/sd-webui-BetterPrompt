@@ -1,29 +1,59 @@
-import zyX, { html, css } from './zyX-es6.js'
+import zyX, { html } from './zyX-es6.js'
+import { updateInput } from './util.js'
 
 export class ResolutionPicker {
-    constructor(host, callback) {
+    constructor(betterprompt) {
+        this.betterprompt = betterprompt
         this.resolutionButtons = buildResolutionButtons(resolutions)
-
+        const widthInput = this.getSizeInput("width")
         html`
-            <div this=presets class="ResolutionPicker">
+            <div this=presets class="ResolutionPicker" zyx-click="${this.onClick.bind(this)}">
                 ${this.resolutionButtons}
             </div>
         `
             .bind(this)
-            .prependTo(host)
+            .prependTo(widthInput.parentElement.parentElement)
 
-        this.presets.addEventListener('click', (e) => {
-            const target = e.target.closest('[resolution]')
-            if (!target) return
-            const [width, height] = target.getAttribute('resolution').split('*')
-            callback(width, height)
-        })
+        this.setUpSizeChangeListener()
     }
 
-    updateButtons(w, h) {
+    onClick(e) {
+        const target = e.target.closest('[resolution]')
+        if (!target) return
+        const [width, height] = target.getAttribute('resolution').split('*')
+        this.setWidthHeightParams(width, height)
+    }
+
+    reflectState(w, h) {
         this.resolutionButtons.forEach(_ => _.reflectMatch?.(w, h))
     }
 
+    getSizeInput(axis) {
+        return this.betterprompt.queryTab(tab => `#${tab}_${axis} input[type="number"]`)
+    }
+
+    getSizeSliders(axis) {
+        return this.betterprompt.queryTab(tab => `#${tab}_${axis} input[type="range"]`)
+    }
+
+    getSizeParams() {
+        return ["width", "height"].map(axis => Number(this.getSizeInput(axis).value));
+    }
+
+    setWidthHeightParams(width, height) {
+        width !== undefined && updateInput(this.getSizeInput("width"), width);
+        height !== undefined && updateInput(this.getSizeInput("height"), height);
+    }
+
+    setUpSizeChangeListener() {
+        const [width, height] = ["width", "height"].map(axis => this.getSizeInput(axis));
+        const [widthSlider, heightSlider] = ["width", "height"].map(axis => this.getSizeSliders(axis));
+        [width, height, widthSlider, heightSlider].forEach(input => input.addEventListener("input", this.sizeChangeHandler.bind(this)));
+    }
+
+    sizeChangeHandler() {
+        this.reflectState(...this.getSizeParams());
+    }
 }
 
 const SPACER = 1;
@@ -62,16 +92,10 @@ export class ResolutionButton {
     }
 }
 
-class Separator {
-    constructor() {
-        html`<div class="Separator"></div>`.bind(this)
-    }
-}
-
 export function buildResolutionButtons(array) {
     return array.map(_ => {
         switch (_) {
-            case SPACER: return new Separator()
+            case SPACER: return html`<div class="Separator"></div>`
             case NEWLINE: return html`<div class="Newline"></div>`
             default: return new ResolutionButton(..._)
         }

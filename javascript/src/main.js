@@ -14,7 +14,31 @@ if (chrome.runtime) css`@import url(${chrome.runtime.getURL('static/styles.css')
 else css`@import url('BetterPrompt/static/styles.css');`
 
 import { ResolutionPicker } from './resolutionPicker.js'
-import { TextNode, BreakNode } from './nodes.js'
+import { getNodeClass } from './node.js'
+import { reorderElement, updateInput } from './util.js'
+
+class DenoiserControlExtender {
+    constructor(beterprompt) {
+        this.beterprompt = beterprompt
+        this.noiseControls = this.beterprompt.queryTabAll(tab => `#${tab}_denoising_strength input`)
+        this.images = [...this.beterprompt.queryTabAll(tab => '#img2img_settings > .tabs .image-container')]
+        console.log('[BetterPrompt] DenoiserControlExtender', this)
+        for (const control of this.noiseControls) control.addEventListener('input', this.onInput.bind(this))
+    }
+
+    getSelectedTab() {
+        return this.images.find(image => image.closest(".tabitem").style.display === "block")
+    }
+
+    onInput() {
+        const noise = this.noiseControls[0].value
+        const previewImage = this.getSelectedTab().querySelector('img')
+        previewImage.style.filter = `blur(${noise * (previewImage.naturalWidth / 500)}px)`
+        zyX(this).delay("onInput", 1000, () => {
+            previewImage.style.filter = ''
+        })
+    }
+}
 
 export class Editor {
     constructor(editors, { tabNav, tabs }, tabname) {
@@ -23,11 +47,15 @@ export class Editor {
         this.tabNav = tabNav
         this.tabname = tabname
         this.tab = tabs.querySelector(`#tab_${this.tabname}`)
-
         if (!this.tab) return console.error(`Tab ${this.tabname} not found`)
 
+        this.resolutionPicker = new ResolutionPicker(this)
         this.nodes = []
         this.textarea = this.tab.querySelector('textarea')
+        if (this.tabname === "img2img") {
+            this.denoiserControlExtender = new DenoiserControlExtender(this)
+
+        }
 
         html`
             <div class="BetterPromptContainer">
@@ -58,14 +86,16 @@ export class Editor {
 
         this.compose.addEventListener('click', this.composePrompt.bind(this))
 
-        this.add_node.addEventListener('click', () => {
-            const text_node = new TextNode(this, {})
+        this.add_node.addEventListener('click', async () => {
+            const nodeConstructor = await getNodeClass('text')
+            const text_node = new nodeConstructor(this, {})
             this.insertNode(text_node)
             this.reflectNodes()
         })
 
-        this.add_break.addEventListener('click', () => {
-            const break_node = new BreakNode(this, {})
+        this.add_break.addEventListener('click', async () => {
+            const nodeConstructor = await getNodeClass('break')
+            const break_node = new nodeConstructor(this, {})
             this.insertNode(break_node)
             this.reflectNodes()
         })
@@ -85,20 +115,29 @@ export class Editor {
 
         this.send_to_other.addEventListener('click', this.sendToOtherEditor.bind(this))
 
-        this.setUpSizeChangeListener()
-        this.setupResolutionButtons()
-
-        this.insertNode(new TextNode(this, {}))
-        this.reflectNodes()
-
-        console.log('[BetterPrompt] Editor', this)
+        this.asyncConstructor()
+            .then(() => console.log('[BetterPrompt] Editor loaded', this))
     }
 
-    sendToOtherEditor() {
+    async asyncConstructor() {
+        const nodeConstructor = await getNodeClass('text')
+        this.insertNode(new nodeConstructor(this, {}))
+        this.reflectNodes()
+    }
+
+    queryTab(cb) {
+        return this.tab.querySelector(cb(this.tabname))
+    }
+
+    queryTabAll(cb) {
+        return this.tab.querySelectorAll(cb(this.tabname))
+    }
+
+    async sendToOtherEditor() {
         const otherTab = this.tabname === 'txt2img' ? 'img2img' : 'txt2img'
         this.clickTab(otherTab)
         const otherEditor = this.editors[otherTab]
-        otherEditor.loadJson(this.nodes.map(node => node.getJson()))
+        await otherEditor.loadJson(this.nodes.map(node => node.getJson()))
     }
 
     clickTab(which) {
@@ -107,17 +146,18 @@ export class Editor {
         tab.click()
     }
 
-    loadJson(json) {
+    async loadJson(json) {
         this.nodes = [];
-        this.loadNodes(json)
+        await this.loadNodes(json)
         this.reflectNodes()
         this.composePrompt()
     }
 
-    loadNodes(json) {
+    async loadNodes(json) {
         for (const node of json) {
             const { type } = node
-            const newNode = type === 'text' ? new TextNode(this, node) : new BreakNode(this, node)
+            const nodeConstructor = await getNodeClass(type)
+            const newNode = new nodeConstructor(this, node)
             this.nodes.push(newNode)
         }
     }
@@ -147,49 +187,4 @@ export class Editor {
         updateInput(this.textarea, prompt)
     }
 
-    setupResolutionButtons() {
-        const widthInput = this.getSizeInput("width")
-        const widthParent = widthInput.parentElement.parentElement
-        this.resolutionPicker = new ResolutionPicker(widthParent, (width, height) => this.setWidthHeightParams(width, height))
-    }
-
-    getSizeInput(axis) {
-        return this.tab.querySelector(`#${this.tabname}_${axis} input[type="number"]`);
-    }
-
-    getSizeSliders(axis) {
-        return this.tab.querySelector(`#${this.tabname}_${axis} input[type="range"]`);
-    }
-
-    getSizeParams() {
-        return ["width", "height"].map(axis => Number(this.getSizeInput(axis).value));
-    }
-
-    setWidthHeightParams(width, height) {
-        width !== undefined && updateInput(this.getSizeInput("width"), width);
-        height !== undefined && updateInput(this.getSizeInput("height"), height);
-    }
-
-    setUpSizeChangeListener() {
-        const [width, height] = ["width", "height"].map(axis => this.getSizeInput(axis));
-        const [widthSlider, heightSlider] = ["width", "height"].map(axis => this.getSizeSliders(axis));
-        [width, height, widthSlider, heightSlider].forEach(input => input.addEventListener("input", this.sizeChangeHandler.bind(this)));
-    }
-
-    sizeChangeHandler() {
-        this.resolutionPicker.updateButtons(...this.getSizeParams());
-    }
-}
-
-function reorderElement(array, element, offset) {
-    const index = array.indexOf(element)
-    const newIndex = Math.max(0, Math.min(array.length - 1, index + offset))
-    array.splice(index, 1)
-    array.splice(newIndex, 0, element)
-    return array
-}
-
-function updateInput(input, value) {
-    input.value = value
-    input.dispatchEvent(new Event('input', { bubbles: true }))
 }

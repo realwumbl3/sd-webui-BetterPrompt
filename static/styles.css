@@ -10,10 +10,11 @@
         border: 1px solid #374151;
         border-radius: 5px;
         padding: .5em;
-        resize: both;
+        resize: vertical;
         overflow: auto;
         grid-template-rows: min-content auto min-content min-content;
-        width: 60vw;
+        width: 100%;
+        min-width: min(160px, 100%);
 
         & .Button {
             font-size: 15px;
