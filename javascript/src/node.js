@@ -56,15 +56,17 @@ export default class Node {
         this.up.addEventListener('click', () => this.reorder(-1))
         this.down.addEventListener('click', () => this.reorder(1))
 
-        this.add_node.addEventListener('click', () => {
-            const node = new TextNode(this.editor, {})
-            this.editor.insertNode(node, Math.max(0, this.editor.nodes.indexOf(this)))
+        this.add_node.addEventListener('click', async () => {
+            const node = await getNodeClass('text')
+            const text_node = new node(this.editor, {})
+            this.editor.insertNode(text_node, Math.max(0, this.editor.nodes.indexOf(this)))
             this.editor.reflectNodes()
         })
 
-        this.add_break.addEventListener('click', () => {
-            const node = new BreakNode(this.editor, {})
-            this.editor.insertNode(node, Math.max(0, this.editor.nodes.indexOf(this)))
+        this.add_break.addEventListener('click', async () => {
+            const node = await getNodeClass('break')
+            const break_node = new node(this.editor, {})
+            this.editor.insertNode(break_node, Math.max(0, this.editor.nodes.indexOf(this)))
             this.editor.reflectNodes()
         })
 

@@ -20,12 +20,16 @@ export default class TextNode extends Node {
             this.resizeToFitScrollheight()
         })
 
-        setTimeout(() => this.resizeToFitScrollheight(), 0)
+        setTimeout(() => this.resizeToFitScrollheight(), 1)
     }
+
+    fitContent() {
+        this.resizeToFitScrollheight()
+    }   
 
     resizeToFitScrollheight() {
         this.textarea.style.height = 'auto'
-        const scrollHeight = Math.max(this.textarea.scrollHeight, 42);
+        const scrollHeight = Math.max(this.textarea.scrollHeight, 58);
         this.textarea.style.height = `${scrollHeight}px`
     }
 

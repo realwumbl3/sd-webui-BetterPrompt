@@ -73,6 +73,7 @@ export class Editor {
                         <div class="leftSide">
                             <div this=add_node class="Button">Add Node</div>
                             <div this=add_break class="Button">Add BREAK</div>
+                            <div this=fit_content class="Button">Fit content</div>
                         </div>
                         <dev class="rightSide">
                             <div this=compose class="Button Compose">Compose</div>
@@ -83,6 +84,12 @@ export class Editor {
         `
             .bind(this)
             .prependTo(this.tab.firstElementChild)
+
+        this.fit_content.addEventListener('click', () => {
+            for (const node of this.nodes) {
+                if (node.fitContent) node.fitContent()
+            }
+        })
 
         this.compose.addEventListener('click', this.composePrompt.bind(this))
 
