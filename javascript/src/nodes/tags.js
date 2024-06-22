@@ -1,29 +1,37 @@
-import zyX, { html, css } from '../zyX-es6.js'
+import zyX, { html, css, ZyXDomArray, ZyXArray } from '../zyX-es6.js'
 import Node from '../node.js'
 
 export default class TagsNode extends Node {
     constructor(editor, initialJson) {
         super(editor, {
             name: 'Tags Node',
-            type: 'tag',
+            type: 'tags',
             value: [],
             ...initialJson
         })
 
+        this.tags = new ZyXArray()
+
         html`
-            <div class=TagsNode this=tags_container></div>
+            <div class="TagsNodeContainer">
+                <div class=TagsNode this=tags_container zyx-array="${{ array: this.tags }}"></div>
+                <button this=add_tag class=Button>+</button>
+            </div>
         `.bind(this).appendTo(this.nodearea)
 
-        this.reflectTags()
+        this.add_tag.addEventListener('click', () => this.addTag(''))
+
+        const value = super.getJson().value
+
+        if (value) {
+            for (const tag of value) {
+                this.addTag(tag)
+            }
+        }
     }
 
     addTag(tag) {
-
-    }
-
-    reflectTags() {
-        this.tags_container.innerHTML = ''
-        this.getJson().value.forEach(tag => new Tag(this, tag).appendTo(this.tags_container))
+        this.tags.push(new Tag(this, tag))
     }
 
     toPrompt() {
@@ -31,22 +39,41 @@ export default class TagsNode extends Node {
         const value = this.getJson().value
         return value.join(', ')
     }
+
+    getJson() {
+        return {
+            ...super.getJson(),
+            value: this.tags.map(tag => tag.value)
+        }
+    }
+
 }
 
 
 class Tag {
-    constructor(tagNode, initialValue) {
+    constructor(tagNode, value) {
         this.tagNode = tagNode
-        this.value = initialValue
+        this.value = value
 
         html`
-            <textarea class=TagsTag this=textarea style="height: 42px;">${this.value}</textarea>
-        `.bind(this).appendTo(this.nodearea)
+            <div this=main class="Tag">
+                <input this=input type="text" value="${this.value}"/>
+                <div class=Button this="remove">X</div>
+            </div>
+        `.bind(this)
 
-        this.textarea.addEventListener('input', () => {
+        this.remove.addEventListener('click', () => this.removeTag())
+        this.input.addEventListener('input', () => this.updateTag())
 
-        })
+    }
 
+    removeTag() {
+        this.tagNode.tags.remove(this)
+        this.main.remove()
+    }
+
+    updateTag() {
+        this.value = this.input.value
     }
 
 }

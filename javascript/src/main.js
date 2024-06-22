@@ -127,7 +127,7 @@ export class Editor {
     }
 
     async asyncConstructor() {
-        const nodeConstructor = await getNodeClass('text')
+        const nodeConstructor = await getNodeClass('tags')
         this.insertNode(new nodeConstructor(this, {}))
         this.reflectNodes()
     }

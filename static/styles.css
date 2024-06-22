@@ -182,6 +182,35 @@
                     padding: 5px;
                 }
 
+                &>.TagsNodeContainer {
+                    display: flex;
+                    gap: 5px;
+
+                    &>.TagsNode {
+                        display: flex;
+                        gap: 5px;
+
+                        &>.Tag {
+                            background: #4b5563;
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                            border-radius: 5px;
+
+                            &>input {
+                                background: #4b5563;
+                                color: white;
+                                border: none;
+                                font-size: 12px;
+                                width: 100%;
+                                height: 1em;
+                                border-radius: 5px;
+                            }
+                        }
+                    }
+                }
+
+
                 &>.Options {
                     display: flex;
                     gap: 5px;
