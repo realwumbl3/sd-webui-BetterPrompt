@@ -1,8 +1,9 @@
-import zyX, { html, css } from './zyX-es6.js'
+import zyX, { html, css, sleep } from './zyX-es6.js'
 import { ResolutionPicker } from './resolutionPicker.js'
 import { getNodeClass } from './node.js'
 import { reorderElement, updateInput } from './util.js'
 import DenoiserControlExtender from './denoiseExtension.js'
+import observe from './observer.js'
 
 export default class Editor {
     constructor(editors, { tabNav, tabs }, tabname) {
@@ -41,7 +42,7 @@ export default class Editor {
                             <div this=import class="Button">Import</div>
                         </div>
                         <dev class="rightSide">
-                        </dev>
+=                        </dev>
                     </div>
                 </div>
             </div>

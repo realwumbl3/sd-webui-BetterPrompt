@@ -15,6 +15,5 @@ def on_app_started(_: gr.Blocks, app: FastAPI) -> None:
     async def serve_static_file(file_path: str):
         file_full_path = f"{cwd}/static/{file_path}"
         return FileResponse(file_full_path)
-
-
+    
 script_callbacks.on_app_started(on_app_started)

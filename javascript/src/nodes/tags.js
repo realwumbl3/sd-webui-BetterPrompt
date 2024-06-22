@@ -60,7 +60,7 @@ class Tag {
         html`
             <div this=main class="Tag">
                 ${this.autoFitInput}
-                <div class=Button this="remove">X</div>
+                <div class="Remove" this="remove">X</div>
             </div>
         `.bind(this)
 

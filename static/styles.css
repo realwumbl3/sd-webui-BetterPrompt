@@ -169,6 +169,12 @@
                 height: 1.4em;
                 align-items: stretch;
                 flex-wrap: nowrap;
+                opacity: 0.6;
+                transition: opacity 0.2s;
+
+                &:hover {
+                    opacity: 1;
+                }
 
                 & .EyeIcon {
                     width: 1em;
@@ -208,7 +214,7 @@
 
                     &>.TagsNode {
                         display: flex;
-                        gap: 5px;
+                        gap: 3px;
 
                         &>.Tag {
                             background: #4b5563;
@@ -216,6 +222,19 @@
                             align-items: center;
                             gap: 5px;
                             border-radius: 5px;
+
+                            &>.Remove {
+                                font-size: 13px;
+                                height: max-content;
+                                cursor: pointer;
+                                user-select: none;
+                                color: darkgrey;
+                                padding: 0 0.1em;
+
+                                &:hover {
+                                    color: white;
+                                }
+                            }
 
                             &>.AutoFitInput input {
                                 background: #4b5563;
