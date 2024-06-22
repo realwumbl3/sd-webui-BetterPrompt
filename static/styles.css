@@ -53,7 +53,7 @@
 
         & .NodeFeild {
             border: 1px solid #ffffff3d;
-            padding: 5px;
+            padding: 10px 5px;
             border-radius: 13px;
             display: flex;
             flex-direction: column;

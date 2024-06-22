@@ -36,9 +36,10 @@ export default class Node {
         html`
         <div class="Node" this="main">
             <div class=FlotingButtons>
-                <div>
-                    <div class=Button this=add_node>add node</div>
-                    <div class=Button this=add_break>add break</div>
+                <div this=float_buttons>
+                    <div class=Button nodetype="text">add node</div>
+                    <div class=Button nodetype="tags">add tags</div>
+                    <div class=Button nodetype="break">add break</div>
                 </div>
             </div>
             <div class="Controls">
@@ -56,17 +57,12 @@ export default class Node {
         this.up.addEventListener('click', () => this.reorder(-1))
         this.down.addEventListener('click', () => this.reorder(1))
 
-        this.add_node.addEventListener('click', async () => {
-            const node = await getNodeClass('text')
-            const text_node = new node(this.editor, {})
-            this.editor.insertNode(text_node, Math.max(0, this.editor.nodes.indexOf(this)))
-            this.editor.reflectNodes()
-        })
-
-        this.add_break.addEventListener('click', async () => {
-            const node = await getNodeClass('break')
-            const break_node = new node(this.editor, {})
-            this.editor.insertNode(break_node, Math.max(0, this.editor.nodes.indexOf(this)))
+        this.float_buttons.addEventListener('click', async (e) => {
+            const button = e.target.closest('.Button')
+            if (!button) return
+            const node = await getNodeClass(button.getAttribute('nodetype'))
+            const tags_node = new node(this.editor, {})
+            this.editor.insertNode(tags_node, Math.max(0, this.editor.nodes.indexOf(this)))
             this.editor.reflectNodes()
         })
 

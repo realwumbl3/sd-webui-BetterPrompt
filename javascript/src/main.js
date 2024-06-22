@@ -72,6 +72,7 @@ export class Editor {
                     <div class="EditorFooter">
                         <div class="leftSide">
                             <div this=add_node class="Button">Add Node</div>
+                            <div this=add_tags class="Button">Add Tags</div>
                             <div this=add_break class="Button">Add BREAK</div>
                             <div this=fit_content class="Button">Fit content</div>
                         </div>
@@ -104,6 +105,13 @@ export class Editor {
             const nodeConstructor = await getNodeClass('break')
             const break_node = new nodeConstructor(this, {})
             this.insertNode(break_node)
+            this.reflectNodes()
+        })
+
+        this.add_tags.addEventListener('click', async () => {
+            const nodeConstructor = await getNodeClass('tags')
+            const tags_node = new nodeConstructor(this, {})
+            this.insertNode(tags_node)
             this.reflectNodes()
         })
 
