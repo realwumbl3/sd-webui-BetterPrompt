@@ -84,23 +84,19 @@ class Tag {
 
 }
 
-
-// put an invisible span in the input to measure the text width
-
 class AutoFitInput {
-    constructor() {
+    constructor({ placeholder = "enter tag" } = {}) {
+        // put an invisible span in the input to measure the text width
         html`
             <div class=AutoFitInput>
-                <input this=input type="text"/>
-                <span this=span></span>
+                <input this=input type="text" placeholder="${placeholder}"/>
+                <span this=span>${placeholder}</span>
             </div>
         `.bind(this)
         this.input.addEventListener('input', () => this.updateWidth())
     }
-
     updateWidth() {
-        this.span.textContent = this.input.value
+        this.span.textContent = this.input.value < 1 ? this.input.placeholder : this.input.value
         this.input.style.width = this.span.offsetWidth + 10 + 'px'
     }
-
 }

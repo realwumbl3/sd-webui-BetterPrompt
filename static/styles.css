@@ -76,17 +76,17 @@
             >.rightSide {
                 display: flex;
                 gap: 5px;
+            }
 
-                & .Compose {
-                    display: block;
-                    padding: 0.2em 0.6em;
-                    background: orange;
-                    color: white;
-                    border-radius: 5px;
-                    text-align: center;
-                    cursor: pointer;
-                    font-size: 1.5em;
-                }
+            & .Compose {
+                display: block;
+                padding: 0.2em 0.6em;
+                background: orange;
+                color: white;
+                border-radius: 5px;
+                text-align: center;
+                cursor: pointer;
+                font-size: 1.5em;
             }
         }
 
@@ -129,18 +129,31 @@
                     position: absolute;
                     display: grid;
                     grid-auto-flow: column;
+                    grid-auto-columns: max-content;
                     left: 30px;
                     top: -10px;
                     align-content: space-between;
                     height: 100%;
 
+                    &>label {
+                        padding: 0px 2px;
+                        line-height: 7px;
+                        font-size: 10px;
+                        white-space: nowrap;
+                    }
+
                     & .Button {
-                        padding: 0px 20px;
+                        padding: 0px 7px;
                         line-height: 7px;
                         background-color: transparent;
                         cursor: copy;
                         font-size: 10px;
                         white-space: nowrap;
+                        opacity: .8;
+
+                        &:hover {
+                            opacity: 1;
+                        }
                     }
                 }
             }
@@ -154,19 +167,26 @@
                 display: flex;
                 gap: 4px;
                 height: 1.4em;
-                align-items: center;
+                align-items: stretch;
                 flex-wrap: nowrap;
 
-                .EyeIcon {
+                & .EyeIcon {
                     width: 1em;
                     height: 1em;
+                }
+
+                &>.Sort {
+                    display: flex;
+                    gap: 5px;
+                    align-items: center;
+                    height: auto;
                 }
 
                 & .Button {
                     font-size: 13px;
                     padding: 0 5px;
                     background: #4b5563;
-                    height: 100%;
+                    height: auto;
                 }
             }
 
@@ -215,24 +235,26 @@
 
                     }
                 }
-            }
 
-
-            &>.Options {
-                display: flex;
-                gap: 5px;
-
-                & label {
+                &>.Options {
                     display: flex;
                     gap: 5px;
-                    align-items: center;
+
+                    & label {
+                        display: flex;
+                        gap: 5px;
+                        align-items: center;
+                    }
+
+                    & input[type="radio"] {
+                        background-color: #232739;
+                        border-radius: 100%;
+                    }
                 }
 
-                & input[type="radio"] {
-                    background-color: #232739;
-                    border-radius: 100%;
-                }
             }
+
+
         }
     }
 

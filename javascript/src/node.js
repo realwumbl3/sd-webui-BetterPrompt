@@ -1,6 +1,6 @@
 import zyX, { html, css } from './zyX-es6.js'
 
-import { Editor } from './main.js'
+import Editor from './editor.js'
 import { EyeIcon } from './assets.js'
 
 /**
@@ -37,9 +37,10 @@ export default class Node {
         <div class="Node" this="main">
             <div class=FlotingButtons>
                 <div this=float_buttons>
-                    <div class=Button nodetype="text">add node</div>
-                    <div class=Button nodetype="tags">add tags</div>
-                    <div class=Button nodetype="break">add break</div>
+                    <label>add</label>
+                    <div class=Button nodetype="text">node</div>
+                    <div class=Button nodetype="tags">tags</div>
+                    <div class=Button nodetype="break">break</div>
                 </div>
             </div>
             <div class="Controls">
