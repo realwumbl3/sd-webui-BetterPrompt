@@ -55,15 +55,21 @@ class Tag {
         this.tagNode = tagNode
         this.value = value
 
+        this.autoFitInput = new AutoFitInput()
+
         html`
             <div this=main class="Tag">
-                <input this=input type="text" value="${this.value}"/>
+                ${this.autoFitInput}
                 <div class=Button this="remove">X</div>
             </div>
         `.bind(this)
 
+        this.autoFitInput.input.value = this.value
+
         this.remove.addEventListener('click', () => this.removeTag())
-        this.input.addEventListener('input', () => this.updateTag())
+        this.autoFitInput.input.addEventListener('input', () => this.updateTag())
+
+        setTimeout(() => this.autoFitInput.updateWidth(), 100)
 
     }
 
@@ -73,7 +79,28 @@ class Tag {
     }
 
     updateTag() {
-        this.value = this.input.value
+        this.value = this.autoFitInput.input.value
+    }
+
+}
+
+
+// put an invisible span in the input to measure the text width
+
+class AutoFitInput {
+    constructor() {
+        html`
+            <div class=AutoFitInput>
+                <input this=input type="text"/>
+                <span this=span></span>
+            </div>
+        `.bind(this)
+        this.input.addEventListener('input', () => this.updateWidth())
+    }
+
+    updateWidth() {
+        this.span.textContent = this.input.value
+        this.input.style.width = this.span.offsetWidth + 10 + 'px'
     }
 
 }
