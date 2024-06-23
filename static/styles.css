@@ -223,6 +223,10 @@
                             gap: 5px;
                             border-radius: 5px;
 
+                            &.LORA {
+                                background: #751d49;
+                            }
+
                             &>.Remove {
                                 font-size: 13px;
                                 height: max-content;
@@ -237,7 +241,7 @@
                             }
 
                             &>.AutoFitInput input {
-                                background: #4b5563;
+                                background: transparent;
                                 color: white;
                                 border: none;
                                 width: 100%;

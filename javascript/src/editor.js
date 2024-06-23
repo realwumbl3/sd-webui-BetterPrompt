@@ -80,7 +80,7 @@ export default class Editor {
         })
 
         this.export.addEventListener('click', () => {
-            navigator.clipboard.writeText(JSON.stringify(getNodesJson(), null, 1))
+            navigator.clipboard.writeText(JSON.stringify(this.getNodesJson(), null, 1))
         })
 
         this.import.addEventListener('click', () => {

@@ -44,8 +44,7 @@ export default class TagsNode extends Node {
 
     toPrompt() {
         if (this.isMuted()) return false
-        const value = this.getJson().value
-        return value.join(', ')
+        return this.tags.map(tag => tag.toPrompt()).join(', ')
     }
 
     getJson() {
@@ -58,12 +57,21 @@ export default class TagsNode extends Node {
 }
 
 
+
 class Tag {
     constructor(tagNode, value) {
         this.tagNode = tagNode
         this.value = value
 
         this.input = new AutoFitInput()
+
+        html`
+            <div this=main class="Tag">
+                ${this.input}
+                <div class="Remove" this="remove">X</div>
+            </div>
+        `.bind(this)
+
         this.input.addEventListener('input', () => this.updateTag())
         this.input.addEventListener('keydown', (e) => {
             // if enter is pressed, add a new tag
@@ -73,19 +81,25 @@ class Tag {
             if (e.key === 'Backspace' && this.input.value() === '') {
                 if (this.tagNode.tags.length > 1) this.removeTag()
             }
+            if (e.key === 'ArrowLeft' && this.input.selectionStart() === 0) {
+                const previousTag = this.tagNode.tags[this.tagNode.tags.indexOf(this) - 1]
+                previousTag.focus()
+            }
+            if (e.key === 'ArrowRight' && this.input.selectionStart() === this.input.value().length) {
+                const nextTag = this.tagNode.tags[this.tagNode.tags.indexOf(this) + 1]
+                nextTag.focus()
+            }
         })
-
-        html`
-            <div this=main class="Tag">
-                ${this.input}
-                <div class="Remove" this="remove">X</div>
-            </div>
-        `.bind(this)
-
         this.input.set(this.value)
+        this.updateTag()
 
         this.remove.addEventListener('click', () => this.removeTag())
+    }
 
+    toPrompt() {
+        const value = this.value
+        if (value.startsWith('<') && value.endsWith('>')) return value
+        return value.replace(/ /g, '_')
     }
 
     focus() {
@@ -97,7 +111,9 @@ class Tag {
     }
 
     updateTag() {
-        this.value = this.input.value()
+        const input_value = this.input.value().trim()
+        this.value = input_value
+        this.main.classList.toggle('LORA', input_value.startsWith('<') && input_value.endsWith('>'))
     }
 
     onConnected() {
@@ -133,6 +149,10 @@ class AutoFitInput {
 
     value() {
         return this.input.value
+    }
+
+    selectionStart() {
+        return this.input.selectionStart
     }
 
     updateWidth() {
