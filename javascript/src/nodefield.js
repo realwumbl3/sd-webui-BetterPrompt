@@ -4,8 +4,7 @@ import { reorderElement } from './util.js'
 
 
 export default class NodeField {
-    constructor(editor) {
-        this.editor = editor
+    constructor() {
         this.nodes = new ZyXArray()
         html`
             <div this=nodefield class=NodeField zyx-array="${{ array: this.nodes }}"></div>

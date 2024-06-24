@@ -158,7 +158,7 @@
                 }
             }
 
-            &:hover .FlotingButtons {
+            &:hover>.FlotingButtons {
                 opacity: 1;
             }
 
@@ -206,6 +206,19 @@
                     width: 100%;
                     color: white;
                     padding: 5px;
+                }
+
+                &>.Group {
+
+                    &>.AddNode {
+                        display: flex;
+                        gap: 2px;
+                        padding: 2px;
+
+                        >.Button {
+                            font-size: 9px;
+                        }
+                    }
                 }
 
                 &>.TagsNodeContainer {

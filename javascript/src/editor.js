@@ -21,7 +21,7 @@ export default class Editor {
             this.denoiserControlExtender = new DenoiserControlExtender(this)
         }
 
-        this.mainNodes = new NodeField(this)
+        this.mainNodes = new NodeField()
 
         html`
             <div class="BetterPromptContainer">
@@ -39,6 +39,7 @@ export default class Editor {
                             <div this=add_node class="Button">Add Node</div>
                             <div this=add_tags class="Button">Add Tags</div>
                             <div this=add_break class="Button">Add BREAK</div>
+                            <div this=add_group class="Button">Add Group</div>
                             <div this=fit_content class="Button">Fit content</div>
                             <div this=export class="Button">Export</div>
                             <div this=import class="Button">Import</div>
@@ -52,19 +53,17 @@ export default class Editor {
             .bind(this)
             .prependTo(this.tab.firstElementChild)
 
-        this.fit_content.addEventListener('click', () => this.mainNodes.fitContent())
-
-        this.compose.addEventListener('click', this.composePrompt.bind(this))
-
         this.add_node.addEventListener('click', async () => this.mainNodes.addByType('text'))
-
         this.add_break.addEventListener('click', async () => this.mainNodes.addByType('break'))
-
         this.add_tags.addEventListener('click', async () => this.mainNodes.addByType('tags'))
+        this.add_group.addEventListener('click', async () => this.mainNodes.addByType('group'))
 
         this.export.addEventListener('click', () => {
             navigator.clipboard.writeText(JSON.stringify(this.mainNodes.culmJson(), null, 1))
         })
+
+        this.fit_content.addEventListener('click', () => this.mainNodes.fitContent())
+        this.compose.addEventListener('click', this.composePrompt.bind(this))
 
         this.import.addEventListener('click', () => {
             const json = prompt('Enter json')
