@@ -34,25 +34,25 @@ export default class Node {
         this.editor = editor
 
         html`
-        <div class="Node" this="main">
-            <div class=FlotingButtons>
-                <div this=float_buttons>
-                    <label>add</label>
-                    <div class=Button nodetype="text">node</div>
-                    <div class=Button nodetype="tags">tags</div>
-                    <div class=Button nodetype="break">break</div>
+            <div class="Node" this="main">
+                <div class=FlotingButtons>
+                    <div this=float_buttons>
+                        <label>add</label>
+                        <div class=Button nodetype="text">node</div>
+                        <div class=Button nodetype="tags">tags</div>
+                        <div class=Button nodetype="break">break</div>
+                    </div>
                 </div>
-            </div>
-            <div class="Controls">
-                <div class=Button this="remove">X</div>
-                <div class="Button Mute" this="mute">${EyeIcon}</div>
-                <div class="Sort">
-                    <button this=up class=Button> ↑ </button>
-                    <button this=down class=Button> ↓ </button>
+                <div class="Controls">
+                    <div class=Button this="remove">X</div>
+                    <div class="Button Mute" this="mute">${EyeIcon}</div>
+                    <div class="Sort">
+                        <button this=up class=Button> ↑ </button>
+                        <button this=down class=Button> ↓ </button>
+                    </div>
                 </div>
+                <div class=NodeArea this=nodearea></div>
             </div>
-            <div class=NodeArea this=nodearea></div>
-        </div>
         `.bind(this)
 
         this.up.addEventListener('click', () => this.reorder(-1))

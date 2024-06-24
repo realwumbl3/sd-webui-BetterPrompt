@@ -17,7 +17,7 @@ export default class BreakNode extends Node {
                 <label><input type=radio name=type value=addrow />Row</label>
                 <label><input type=radio name=type value=addcol />Col</label>
             </form>
-        `.bind(this).appendTo(this.nodearea)
+        `.join(this).appendTo(this.nodearea)
 
         this.options.addEventListener('change', () => {
             const value = this.options.querySelector('input:checked').value

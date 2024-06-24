@@ -1,9 +1,10 @@
-import zyX, { html, css, sleep } from './zyX-es6.js'
+import zyX, { html, sleep } from './zyX-es6.js'
 import { ResolutionPicker } from './resolutionPicker.js'
 import { getNodeClass } from './node.js'
-import { reorderElement, updateInput } from './util.js'
+import { updateInput } from './util.js'
 import DenoiserControlExtender from './denoiseExtension.js'
-import observe from './observer.js'
+
+import NodeField from './nodefield.js'
 
 export default class Editor {
     constructor(editors, { tabNav, tabs }, tabname) {
@@ -15,11 +16,12 @@ export default class Editor {
         if (!this.tab) return console.error(`Tab ${this.tabname} not found`)
 
         this.resolutionPicker = new ResolutionPicker(this)
-        this.nodes = []
         this.textarea = this.tab.querySelector('textarea')
         if (this.tabname === "img2img") {
             this.denoiserControlExtender = new DenoiserControlExtender(this)
         }
+
+        this.mainNodes = new NodeField(this)
 
         html`
             <div class="BetterPromptContainer">
@@ -30,7 +32,7 @@ export default class Editor {
                             <div this=send_to_other class="Button">Send to ${this.tabname === 'txt2img' ? 'img2img' : 'txt2img'}</div>
                         </div>
                     </div>
-                    <div this=nodesfield class="NodeFeild"></div>
+                    ${this.mainNodes}
                     <div class="EditorFooter">
                         <div class="leftSide">
                             <div this=compose class="Button Compose">Compose</div>
@@ -51,36 +53,32 @@ export default class Editor {
             .prependTo(this.tab.firstElementChild)
 
         this.fit_content.addEventListener('click', () => {
-            for (const node of this.nodes) {
-                if (node.fitContent) node.fitContent()
-            }
+            this.mainNodes.fitContent()
         })
 
         this.compose.addEventListener('click', this.composePrompt.bind(this))
 
         this.add_node.addEventListener('click', async () => {
             const nodeConstructor = await getNodeClass('text')
-            const text_node = new nodeConstructor(this, {})
-            this.insertNode(text_node)
-            this.reflectNodes()
+            const text_node = new nodeConstructor(this.mainNodes, {})
+            this.mainNodes.insertNode(text_node)
         })
 
         this.add_break.addEventListener('click', async () => {
             const nodeConstructor = await getNodeClass('break')
-            const break_node = new nodeConstructor(this, {})
-            this.insertNode(break_node)
-            this.reflectNodes()
+            const break_node = new nodeConstructor(this.mainNodes, {})
+            this.mainNodes.insertNode(break_node)
         })
 
         this.add_tags.addEventListener('click', async () => {
             const nodeConstructor = await getNodeClass('tags')
-            const tags_node = new nodeConstructor(this, {})
-            this.insertNode(tags_node)
-            this.reflectNodes()
+            const tags_node = new nodeConstructor(this.mainNodes, {})
+            this.mainNodes.insertNode(tags_node)
         })
 
         this.export.addEventListener('click', () => {
-            navigator.clipboard.writeText(JSON.stringify(this.getNodesJson(), null, 1))
+            const json = this.mainNodes.culmJson()
+            navigator.clipboard.writeText(JSON.stringify(json, null, 1))
         })
 
         this.import.addEventListener('click', () => {
@@ -88,7 +86,7 @@ export default class Editor {
             if (!json) return
             const parsed = JSON.parse(json)
             if (!Array.isArray(parsed)) return
-            this.loadJson(parsed)
+            this.mainNodes.loadJson(parsed)
         })
 
         this.send_to_other.addEventListener('click', this.sendToOtherEditor.bind(this))
@@ -97,14 +95,9 @@ export default class Editor {
             .then(() => console.log('[BetterPrompt] Editor loaded', this))
     }
 
-    getNodesJson() {
-        return this.nodes.map(node => node.getJson())
-    }
-
     async asyncConstructor() {
         const nodeConstructor = await getNodeClass('tags')
-        this.insertNode(new nodeConstructor(this, {}))
-        this.reflectNodes()
+        this.mainNodes.insertNode(new nodeConstructor(this.mainNodes, {}))
     }
 
     queryTab(cb) {
@@ -118,8 +111,9 @@ export default class Editor {
     async sendToOtherEditor() {
         const otherTab = this.tabname === 'txt2img' ? 'img2img' : 'txt2img'
         this.clickTab(otherTab)
+        await sleep(50)
         const otherEditor = this.editors[otherTab]
-        await otherEditor.loadJson(this.nodes.map(node => node.getJson()))
+        await otherEditor.mainNodes.loadJson(this.mainNodes.culmJson())
     }
 
     clickTab(which) {
@@ -128,44 +122,8 @@ export default class Editor {
         tab.click()
     }
 
-    async loadJson(json) {
-        this.nodes = [];
-        await this.loadNodes(json)
-        this.reflectNodes()
-        this.composePrompt()
-    }
-
-    async loadNodes(json) {
-        for (const node of json) {
-            const { type } = node
-            const nodeConstructor = await getNodeClass(type)
-            const newNode = new nodeConstructor(this, node)
-            this.nodes.push(newNode)
-        }
-    }
-
-    reflectNodes() {
-        this.nodesfield.innerHTML = ''
-        this.nodes.forEach(node => this.nodesfield.append(node.main))
-    }
-
-    insertNode(node, index) {
-        this.nodes.splice(index ?? this.nodes.length, 0, node)
-    }
-
-    reorderNode(node, direction) {
-        reorderElement(this.nodes, node, direction)
-        this.reflectNodes()
-    }
-
-    removeNode(node) {
-        this.nodesfield.removeChild(node.main)
-        this.nodes = this.nodes.filter(n => n !== node)
-        this.composePrompt()
-    }
-
     composePrompt() {
-        const prompt = this.nodes.map(node => node.toPrompt()).filter(Boolean).join(' ')
+        const prompt = this.mainNodes.composePrompt()
         updateInput(this.textarea, prompt)
     }
 

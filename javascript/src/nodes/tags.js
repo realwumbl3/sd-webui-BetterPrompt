@@ -1,4 +1,4 @@
-import zyX, { html, css, ZyXDomArray, ZyXArray } from '../zyX-es6.js'
+import zyX, { html, css, ZyXDomArray, ZyXArray, sleep } from '../zyX-es6.js'
 import Node from '../node.js'
 
 export default class TagsNode extends Node {
@@ -10,6 +10,8 @@ export default class TagsNode extends Node {
             ...initialJson
         })
 
+        console.log('TagsNode', this)
+
         this.tags = new ZyXArray()
 
         html`
@@ -17,15 +19,15 @@ export default class TagsNode extends Node {
                 <div class=TagsNode this=tags_container zyx-array="${{ array: this.tags }}"></div>
                 <button this=add_tag class=Button>+</button>
             </div>
-        `.bind(this).appendTo(this.nodearea)
+        `
+            .join(this)
+            .appendTo(this.nodearea)
 
         this.add_tag.addEventListener('click', () => this.addTag(''))
 
         const value = super.getJson().value
         if (value) {
-            for (const tag of value) {
-                this.addTag(tag)
-            }
+            for (const tag of value) this.addTag(tag)
         }
     }
 
@@ -55,8 +57,6 @@ export default class TagsNode extends Node {
     }
 
 }
-
-
 
 class Tag {
     constructor(tagNode, value) {
@@ -116,7 +116,8 @@ class Tag {
         this.main.classList.toggle('LORA', input_value.startsWith('<') && input_value.endsWith('>'))
     }
 
-    onConnected() {
+    async onConnected() {
+        await sleep(10)
         this.input.updateWidth()
         this.input.focus()
     }
@@ -155,10 +156,9 @@ class AutoFitInput {
         return this.input.selectionStart
     }
 
-    updateWidth() {
-        setTimeout(() => {
-            this.span.textContent = this.input.value < 1 ? this.input.placeholder : this.input.value
-            this.input.style.width = this.span.offsetWidth + 10 + 'px'
-        }, 10)
+    async updateWidth() {
+        this.span.textContent = this.input.value < 1 ? this.input.placeholder : this.input.value
+        await sleep(10)
+        this.input.style.width = this.span.offsetWidth + 10 + 'px'
     }
 }

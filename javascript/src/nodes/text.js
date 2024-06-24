@@ -13,7 +13,7 @@ export default class TextNode extends Node {
         const value = this.getJson().value
         html`
             <textarea class=BasicText this=textarea style="height: 42px;">${value}</textarea>
-        `.bind(this).appendTo(this.nodearea)
+        `.join(this).appendTo(this.nodearea)
 
         this.textarea.addEventListener('input', () => {
             this.assignJson({ value: this.textarea.value })
