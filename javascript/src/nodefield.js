@@ -12,6 +12,12 @@ export default class NodeField {
         `.bind(this)
     }
 
+    async addByType(type) {
+        const nodeConstructor = await getNodeClass(type)
+        const break_node = new nodeConstructor(this, {})
+        this.insertNode(break_node)
+    }
+
     async loadJson(json) {
         this.nodes.clear()
         await this.loadNodes(json)

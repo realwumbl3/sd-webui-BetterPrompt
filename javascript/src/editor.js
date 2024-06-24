@@ -52,33 +52,18 @@ export default class Editor {
             .bind(this)
             .prependTo(this.tab.firstElementChild)
 
-        this.fit_content.addEventListener('click', () => {
-            this.mainNodes.fitContent()
-        })
+        this.fit_content.addEventListener('click', () => this.mainNodes.fitContent())
 
         this.compose.addEventListener('click', this.composePrompt.bind(this))
 
-        this.add_node.addEventListener('click', async () => {
-            const nodeConstructor = await getNodeClass('text')
-            const text_node = new nodeConstructor(this.mainNodes, {})
-            this.mainNodes.insertNode(text_node)
-        })
+        this.add_node.addEventListener('click', async () => this.mainNodes.addByType('text'))
 
-        this.add_break.addEventListener('click', async () => {
-            const nodeConstructor = await getNodeClass('break')
-            const break_node = new nodeConstructor(this.mainNodes, {})
-            this.mainNodes.insertNode(break_node)
-        })
+        this.add_break.addEventListener('click', async () => this.mainNodes.addByType('break'))
 
-        this.add_tags.addEventListener('click', async () => {
-            const nodeConstructor = await getNodeClass('tags')
-            const tags_node = new nodeConstructor(this.mainNodes, {})
-            this.mainNodes.insertNode(tags_node)
-        })
+        this.add_tags.addEventListener('click', async () => this.mainNodes.addByType('tags'))
 
         this.export.addEventListener('click', () => {
-            const json = this.mainNodes.culmJson()
-            navigator.clipboard.writeText(JSON.stringify(json, null, 1))
+            navigator.clipboard.writeText(JSON.stringify(this.mainNodes.culmJson(), null, 1))
         })
 
         this.import.addEventListener('click', () => {
@@ -92,12 +77,10 @@ export default class Editor {
         this.send_to_other.addEventListener('click', this.sendToOtherEditor.bind(this))
 
         this.asyncConstructor()
-            .then(() => console.log('[BetterPrompt] Editor loaded', this))
     }
 
     async asyncConstructor() {
-        const nodeConstructor = await getNodeClass('tags')
-        this.mainNodes.insertNode(new nodeConstructor(this.mainNodes, {}))
+        this.mainNodes.addByType('tags')
     }
 
     queryTab(cb) {
