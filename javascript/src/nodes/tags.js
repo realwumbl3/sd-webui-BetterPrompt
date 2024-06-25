@@ -1,5 +1,6 @@
-import zyX, { html, css, ZyXDomArray, ZyXArray, sleep } from '../zyX-es6.js'
+import zyX, { html, ZyXArray, sleep } from '../zyX-es6.js'
 import Node from '../node.js'
+import AutoFitInput from '../autofitInput.js'
 
 export default class TagsNode extends Node {
     constructor(editor, initialJson) {
@@ -52,56 +53,81 @@ export default class TagsNode extends Node {
     getJson() {
         return {
             ...super.getJson(),
-            value: this.tags.map(tag => tag.value)
+            value: this.tags.map(tag => tag.jsonRepr())
         }
     }
-
 
 }
 
 class Tag {
-    constructor(tagNode, value) {
+    constructor(tagNode, {
+        value = '',
+        weight = 1
+    } = {}) {
         this.tagNode = tagNode
         this.value = value
-        this.weight = 1
+        this.weight = weight
 
         this.input = new AutoFitInput()
 
         html`
             <div this=main class="Tag">
+                <div this=weight_indicator class="Weight">${this.weight}</div>
                 ${this.input}
-                <div class="Remove" this="remove">X</div>
+                <div this=remove class="Remove">X</div>
             </div>
         `.bind(this)
 
         this.input.addEventListener('input', () => this.updateTag())
+
         this.input.addEventListener('keydown', (e) => {
-            // if enter is pressed, add a new tag
-            if (e.key === 'Enter') {
-                this.tagNode.addTag('')
-            }
+            if (!(e.key === 'ArrowLeft' || e.key === 'ArrowRight')) return
+            const initSel = this.input.selectionStart()
+            this.input.addEventListener('keyup', (e) => {
+                const upSel = this.input.selectionStart()
+                const inputLen = this.input.value().length
+                if (e.key === 'ArrowLeft' && upSel === 0 && initSel === 0) {
+                    this.tagNode.tags[this.tagNode.tags.indexOf(this) - 1]?.focus()
+                }
+                if (e.key === 'ArrowRight' && upSel === inputLen && initSel === inputLen) {
+                    this.tagNode.tags[this.tagNode.tags.indexOf(this) + 1]?.focus()
+                }
+            }, { once: true })
+        })
+
+        this.input.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') this.tagNode.addTag('')
             if (e.key === 'Backspace' && this.input.value() === '') {
                 if (this.tagNode.tags.length > 1) this.removeTag()
             }
-            if (e.key === 'ArrowLeft' && this.input.selectionStart() === 0) {
-                const previousTag = this.tagNode.tags[this.tagNode.tags.indexOf(this) - 1]
-                previousTag.focus()
+            if (e.altKey && e.key === 'ArrowUp') {
+                this.weight = Math.min(1.7, Number((this.weight + .05).toFixed(2)))
+                this.updateTag()
             }
-            if (e.key === 'ArrowRight' && this.input.selectionStart() === this.input.value().length) {
-                const nextTag = this.tagNode.tags[this.tagNode.tags.indexOf(this) + 1]
-                nextTag.focus()
+            if (e.altKey && e.key === 'ArrowDown') {
+                this.weight = Math.max(-1.7, Number((this.weight - .05).toFixed(2)))
+                this.updateTag()
             }
         })
+
         this.input.set(this.value)
         this.updateTag()
 
         this.remove.addEventListener('click', () => this.removeTag())
     }
 
+    jsonRepr() {
+        return {
+            value: this.value,
+            weight: this.weight
+        }
+    }
+
     toPrompt() {
         const value = this.value
         if (value.startsWith('<') && value.endsWith('>')) return value
         const underscored = value.replace(/ /g, '_')
+        if (this.weight !== 1) return `(${underscored}:${this.weight})`
         return underscored;
     }
 
@@ -117,48 +143,12 @@ class Tag {
         const input_value = this.input.value().trim()
         this.value = input_value
         this.main.classList.toggle('LORA', input_value.startsWith('<') && input_value.endsWith('>'))
+        this.weight_indicator.textContent = this.weight
+        this.weight_indicator.classList.toggle('Hidden', this.weight === 1)
     }
 
     async onConnected() {
         await sleep(0)
         this.input.focus()
-    }
-}
-
-class AutoFitInput {
-    constructor({ placeholder = "enter tag" } = {}) {
-        // put an invisible span in the input to measure the text width
-        html`
-            <span class=AutoFitInput>
-                <span this=span>${placeholder}</span>
-                <input this=input type="text" placeholder="${placeholder}"/>
-            </span>
-        `.bind(this)
-        this.input.addEventListener('input', () => this.updateSpan())
-    }
-
-    focus() {
-        this.input.focus()
-    }
-
-    addEventListener(...args) {
-        this.input.addEventListener(...args)
-    }
-
-    set(value) {
-        this.input.value = value
-        this.updateSpan()
-    }
-
-    value() {
-        return this.input.value
-    }
-
-    selectionStart() {
-        return this.input.selectionStart
-    }
-
-    updateSpan() {
-        this.span.textContent = this.input.value < 1 ? this.input.placeholder : this.input.value
     }
 }

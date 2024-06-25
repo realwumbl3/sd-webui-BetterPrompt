@@ -172,7 +172,6 @@
                 flex-wrap: wrap;
                 opacity: 0.6;
                 transition: opacity 0.2s;
-                height: auto;
                 width: min-content;
 
                 &:hover {
@@ -240,11 +239,25 @@
                             background: #4b5563;
                             display: flex;
                             align-items: center;
-                            gap: 5px;
+                            gap: 2px;
                             border-radius: 5px;
 
                             &.LORA {
                                 background: #751d49;
+                            }
+
+                            &>.Weight {
+                                font-size: 9px;
+                                font-family: 'Source Sans Pro';
+                                padding: 0 0.1em;
+                                border-radius: 5px;
+                                background: #4b5563;
+                                color: var(--weight-color);
+                                writing-mode: vertical-lr;
+                                transform: rotate(180deg);
+                                &.Hidden {
+                                    display: none;
+                                }
                             }
 
                             &>.Remove {
@@ -262,7 +275,6 @@
 
                             &>.AutoFitInput input {
                                 background: transparent;
-                                color: white;
                                 border: none;
                                 width: 100%;
                                 height: 100%;
@@ -301,28 +313,7 @@
         }
     }
 
-    .AutoFitInput {
-        position: relative;
-    }
-
-    .AutoFitInput input,
-    .AutoFitInput span {
-        white-space: pre;
-        padding: 0 .2em;
-    }
-
-    .AutoFitInput input {
-        position: absolute;
-        inset: 0;
-    }
-
-    .AutoFitInput span {
-        opacity: 0;
-        position: relative;
-    }
-
 }
-
 
 .ResolutionPicker {
     display: flex;

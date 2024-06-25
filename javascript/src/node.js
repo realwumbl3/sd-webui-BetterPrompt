@@ -46,7 +46,7 @@ export default class Node {
                 <div class="Controls">
                     <div class=Button this="remove">X</div>
                     <div class="Button Mute" this="mute">${EyeIcon}</div>
-                    <div class="Sort FlexBreak">
+                    <div class=Sort>
                         <button this=down class=Button> ↓ </button>
                         <button this=up class=Button> ↑ </button>
                     </div>
@@ -103,13 +103,3 @@ export default class Node {
     }
 
 }
-
-
-css`
-
-.FlexBreak {
-    flex-basis: 100%;
-    height: 0;
-}
-
-`
