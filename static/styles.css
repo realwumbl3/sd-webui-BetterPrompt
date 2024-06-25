@@ -110,7 +110,7 @@
 
         .Node {
             border: 1px solid #ffffff40;
-            padding: 2px;
+            padding: 1px;
             border-radius: 8px;
             display: flex;
             gap: 5px;
@@ -118,7 +118,7 @@
             position: relative;
             align-items: center;
 
-            & .FlotingButtons {
+            & .FloatingButtons {
                 position: absolute;
                 top: 0;
                 width: 20%;
@@ -167,35 +167,40 @@
             &>.Controls {
                 user-select: none;
                 display: flex;
-                gap: 4px;
-                height: 1.4em;
+                gap: 1px;
                 align-items: stretch;
-                flex-wrap: nowrap;
+                flex-wrap: wrap;
                 opacity: 0.6;
                 transition: opacity 0.2s;
+                height: auto;
+                width: min-content;
 
                 &:hover {
                     opacity: 1;
                 }
 
-                & .EyeIcon {
-                    width: 1em;
-                    height: 1em;
-                }
-
                 &>.Sort {
                     display: flex;
-                    gap: 5px;
+                    gap: 1px;
                     align-items: center;
                     height: auto;
                 }
 
                 & .Button {
-                    font-size: 13px;
-                    padding: 0 5px;
+                    text-align: center;
+                    font-size: 9px;
+                    padding: 0 2px;
                     background: #4b5563;
-                    height: auto;
+                    height: 13px;
+                    min-width: 20px;
+                    border-radius: 6px;
                 }
+
+                & .EyeIcon {
+                    width: .9em;
+                    height: .9em;
+                }
+
             }
 
             &>.NodeArea {
