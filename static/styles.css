@@ -116,9 +116,11 @@
             gap: 5px;
             height: min-content;
             position: relative;
+            align-items: center;
 
             & .FlotingButtons {
                 position: absolute;
+                top: 0;
                 width: 20%;
                 height: 0;
                 font-size: 8px;
@@ -158,7 +160,7 @@
                 }
             }
 
-            &:hover>.FlotingButtons {
+            &:hover>.FloatingButtons {
                 opacity: 1;
             }
 
@@ -294,15 +296,24 @@
         }
     }
 
+    .AutoFitInput {
+        position: relative;
+    }
+
     .AutoFitInput input,
     .AutoFitInput span {
         white-space: pre;
         padding: 0 .2em;
     }
 
+    .AutoFitInput input {
+        position: absolute;
+        inset: 0;
+    }
+
     .AutoFitInput span {
-        visibility: hidden;
-        position: fixed;
+        opacity: 0;
+        position: relative;
     }
 
 }

@@ -46,7 +46,7 @@ export default class TagsNode extends Node {
 
     toPrompt() {
         if (this.isMuted()) return false
-        return this.tags.map(tag => tag.toPrompt()).join(', ')
+        return this.tags.map(tag => tag.toPrompt()).join(', ') + ", "
     }
 
     getJson() {
@@ -56,12 +56,14 @@ export default class TagsNode extends Node {
         }
     }
 
+
 }
 
 class Tag {
     constructor(tagNode, value) {
         this.tagNode = tagNode
         this.value = value
+        this.weight = 1
 
         this.input = new AutoFitInput()
 
@@ -99,7 +101,8 @@ class Tag {
     toPrompt() {
         const value = this.value
         if (value.startsWith('<') && value.endsWith('>')) return value
-        return value.replace(/ /g, '_')
+        const underscored = value.replace(/ /g, '_')
+        return underscored;
     }
 
     focus() {
@@ -117,23 +120,21 @@ class Tag {
     }
 
     async onConnected() {
-        await sleep(10)
-        this.input.updateWidth()
+        await sleep(0)
         this.input.focus()
     }
-
 }
 
 class AutoFitInput {
     constructor({ placeholder = "enter tag" } = {}) {
         // put an invisible span in the input to measure the text width
         html`
-            <div class=AutoFitInput>
-                <input this=input type="text" placeholder="${placeholder}"/>
+            <span class=AutoFitInput>
                 <span this=span>${placeholder}</span>
-            </div>
+                <input this=input type="text" placeholder="${placeholder}"/>
+            </span>
         `.bind(this)
-        this.input.addEventListener('input', () => this.updateWidth())
+        this.input.addEventListener('input', () => this.updateSpan())
     }
 
     focus() {
@@ -146,6 +147,7 @@ class AutoFitInput {
 
     set(value) {
         this.input.value = value
+        this.updateSpan()
     }
 
     value() {
@@ -156,9 +158,7 @@ class AutoFitInput {
         return this.input.selectionStart
     }
 
-    async updateWidth() {
+    updateSpan() {
         this.span.textContent = this.input.value < 1 ? this.input.placeholder : this.input.value
-        await sleep(10)
-        this.input.style.width = this.span.offsetWidth + 10 + 'px'
     }
 }

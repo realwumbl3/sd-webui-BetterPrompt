@@ -35,7 +35,7 @@ export default class Node {
 
         html`
             <div class="Node" this="main">
-                <div class=FlotingButtons>
+                <div class=FloatingButtons>
                     <div this=float_buttons>
                         <label>add</label>
                         <div class=Button nodetype="text">node</div>
