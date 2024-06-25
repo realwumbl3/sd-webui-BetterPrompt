@@ -40,6 +40,7 @@ export default class TagsNode extends Node {
     }
 
     addTag(tag) {
+        if (typeof tag === 'string') tag = { value: tag, weight: 1 }
         const newTag = new Tag(this, tag)
         this.tags.push(newTag)
         return newTag
@@ -65,6 +66,7 @@ class Tag {
         weight = 1
     } = {}) {
         this.tagNode = tagNode
+
         this.value = value
         this.weight = weight
 
@@ -117,6 +119,7 @@ class Tag {
     }
 
     jsonRepr() {
+        if (this.weight === 1) return this.value
         return {
             value: this.value,
             weight: this.weight

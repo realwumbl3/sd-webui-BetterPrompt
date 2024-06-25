@@ -110,7 +110,7 @@
 
         .Node {
             border: 1px solid #ffffff40;
-            padding: 1px;
+            padding: 2px;
             border-radius: 8px;
             display: flex;
             gap: 5px;
