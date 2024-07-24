@@ -6,6 +6,8 @@ import DenoiserControlExtender from "./denoiseExtension.js";
 
 import NodeField from "./nodefield.js";
 
+import LZString from "./LZString.js";
+
 import {
 	decode as keyDecodeObject,
 	encode as keyEncodeObject,
@@ -80,8 +82,8 @@ export default class Editor {
 			if (!json) return;
 			if (json.includes("<lora:betterpromptexport")) {
 				const encoded64 = json.match(/<lora:betterpromptexport(.+):0.0>/)[1];
-				const decodedLora = b64DecodeUnicode(encoded64);
-                const parsedLora = JSON.parse(decodedLora);
+				const decodedLora = LZString.decompressFromBase64(encoded64);
+				const parsedLora = JSON.parse(decodedLora);
 				json = keyDecodeObject(parsedLora);
 			}
 			if (typeof json === "string") json = JSON.parse(json);
@@ -126,11 +128,14 @@ export default class Editor {
 		const prompt = this.mainNodes.composePrompt();
 		const encodedPrompt = keyEncodeObject(this.mainNodes.culmJson());
 		let promptJson = JSON.stringify(encodedPrompt, null);
-		const encoded64 = b64EncodeUnicode(promptJson);
+		const lzString = LZString.compressToBase64(promptJson);
+		await updateInput(this.textarea, prompt);
+		const promptHeight = this.textarea.scrollHeight;
 		await updateInput(
 			this.textarea,
-			`${prompt}\n\n<lora:betterpromptexport${encoded64}:0.0>`
+			`${prompt}\n\n<lora:betterpromptexport${lzString}:0.0>`
 		);
+		this.textarea.style.height = `${promptHeight}px`;
 	}
 }
 
