@@ -11,8 +11,6 @@ export default class TagsNode extends Node {
             ...initialJson
         })
 
-        console.log('TagsNode', this)
-
         this.tags = new ZyXArray()
 
         html`
