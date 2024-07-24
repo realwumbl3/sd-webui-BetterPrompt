@@ -6,6 +6,11 @@ import DenoiserControlExtender from "./denoiseExtension.js";
 
 import NodeField from "./nodefield.js";
 
+import {
+	decode as keyDecodeObject,
+	encode as keyEncodeObject,
+} from "./keyIndexObject.js";
+
 export default class Editor {
 	constructor(editors, { tabNav, tabs }, tabname) {
 		this.editors = editors;
@@ -75,11 +80,13 @@ export default class Editor {
 			if (!json) return;
 			if (json.includes("<lora:betterpromptexport")) {
 				const encoded64 = json.match(/<lora:betterpromptexport(.+):0.0>/)[1];
-				json = b64DecodeUnicode(encoded64);
+				const decodedLora = b64DecodeUnicode(encoded64);
+                const parsedLora = JSON.parse(decodedLora);
+				json = keyDecodeObject(parsedLora);
 			}
-			const parsed = JSON.parse(json);
-			if (!Array.isArray(parsed)) return;
-			this.mainNodes.loadJson(parsed);
+			if (typeof json === "string") json = JSON.parse(json);
+			if (!Array.isArray(json)) return;
+			this.mainNodes.loadJson(json);
 		});
 
 		this.send_to_other.addEventListener("click", this.sendToOtherEditor.bind(this));
@@ -117,7 +124,8 @@ export default class Editor {
 
 	async composePrompt() {
 		const prompt = this.mainNodes.composePrompt();
-		let promptJson = JSON.stringify(this.mainNodes.culmJson(), null);
+		const encodedPrompt = keyEncodeObject(this.mainNodes.culmJson());
+		let promptJson = JSON.stringify(encodedPrompt, null);
 		const encoded64 = b64EncodeUnicode(promptJson);
 		await updateInput(
 			this.textarea,
