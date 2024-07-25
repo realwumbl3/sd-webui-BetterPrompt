@@ -2,8 +2,8 @@ import zyX, { html, css } from '../zyX-es6.js'
 import Node from '../node.js'
 
 export default class TextNode extends Node {
-    constructor(editor, initialJson) {
-        super(editor, {
+	constructor(editor, nodefield, initialJson) {
+		super(editor, nodefield, {
             name: 'Text Node',
             type: 'text',
             value: '',

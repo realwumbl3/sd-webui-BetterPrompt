@@ -28,7 +28,7 @@ export default class Editor {
 			this.denoiserControlExtender = new DenoiserControlExtender(this);
 		}
 
-		this.mainNodes = new NodeField();
+		this.mainNodes = new NodeField(this);
 
 		html`
 			<div class="BetterPromptContainer">
@@ -52,6 +52,8 @@ export default class Editor {
 							<div this="fit_content" class="Button">Fit content</div>
 							<div this="export" class="Button">Export</div>
 							<div this="import" class="Button">Import</div>
+							<div this="import_prompt" class="Button">from prompt</div>
+							<div this="import_file" class="Button">from file</div>
 						</div>
 						<div class="rightSide"></div>
 					</div>
@@ -78,18 +80,14 @@ export default class Editor {
 		this.compose.addEventListener("click", this.composePrompt.bind(this));
 
 		this.import.addEventListener("click", () => {
-			let json = prompt("Enter json");
-			if (!json) return;
-			if (json.includes("<lora:betterpromptexport")) {
-				const encoded64 = json.match(/<lora:betterpromptexport(.+):0.0>/)[1];
-				const decodedLora = LZString.decompressFromBase64(encoded64);
-				const parsedLora = JSON.parse(decodedLora);
-				json = keyDecodeObject(parsedLora);
-			}
-			if (typeof json === "string") json = JSON.parse(json);
-			if (!Array.isArray(json)) return;
-			this.mainNodes.loadJson(json);
+			this.loadJson(prompt("Enter json"));
 		});
+
+		this.import_prompt.addEventListener("click", () =>
+			this.loadJson(this.textarea.value)
+		);
+
+		this.import_file.addEventListener("click", () => this.openSelectFile());
 
 		this.send_to_other.addEventListener("click", this.sendToOtherEditor.bind(this));
 
@@ -124,6 +122,41 @@ export default class Editor {
 		tab.click();
 	}
 
+	recognizeData(data) {
+		if (data.includes("<betterpromptexport:")) {
+			const encoded64 = data.match(/<betterpromptexport:(.+)>/)[1];
+			const decodedLora = LZString.decompressFromBase64(encoded64);
+			const parsedLora = JSON.parse(decodedLora);
+			data = keyDecodeObject(parsedLora);
+		}
+		if (typeof data === "string") data = JSON.parse(data);
+		if (!Array.isArray(data)) return null;
+		return data;
+	}
+
+	loadJson(json) {
+		const recognizedData = this.recognizeData(json);
+		recognizedData && this.mainNodes.loadJson(recognizedData);
+	}
+
+	async openSelectFile() {
+		const fileInput = document.createElement("input");
+		fileInput.type = "file";
+		fileInput.addEventListener("change", async () => {
+			const file = fileInput.files[0];
+			const reader = new FileReader();
+			reader.onload = async () => {
+				const json = reader.result;
+				this.loadJson(json);
+			};
+			reader.readAsText(file);
+			fileInput.remove();
+		});
+		fileInput.style.display = "none";
+		document.body.appendChild(fileInput);
+		fileInput.click();
+	}
+
 	async composePrompt() {
 		const prompt = this.mainNodes.composePrompt();
 		const encodedPrompt = keyEncodeObject(this.mainNodes.culmJson());
@@ -131,10 +164,7 @@ export default class Editor {
 		const lzString = LZString.compressToBase64(promptJson);
 		await updateInput(this.textarea, prompt);
 		const promptHeight = this.textarea.scrollHeight;
-		await updateInput(
-			this.textarea,
-			`${prompt}\n\n<lora:betterpromptexport${lzString}:0.0>`
-		);
+		await updateInput(this.textarea, `${prompt}\n\n<betterpromptexport:${lzString}>`);
 		this.textarea.style.height = `${promptHeight}px`;
 	}
 }

@@ -3,8 +3,8 @@ import Node from '../node.js'
 import AutoFitInput from '../autofitInput.js'
 
 export default class TagsNode extends Node {
-    constructor(editor, initialJson) {
-        super(editor, {
+	constructor(editor, nodefield, initialJson) {
+		super(editor, nodefield, {
             name: 'Tags Node',
             type: 'tags',
             value: [],

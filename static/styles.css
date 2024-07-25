@@ -117,6 +117,8 @@
             height: min-content;
             position: relative;
             align-items: center;
+            width: min-content;
+            max-width: 100%;
 
             & .FloatingButtons {
                 position: absolute;
