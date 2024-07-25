@@ -117,8 +117,8 @@
             height: min-content;
             position: relative;
             align-items: center;
-            width: min-content;
-            max-width: 100%;
+            /* width: min-content;
+            max-width: 100%; */
 
             & .FloatingButtons {
                 position: absolute;
@@ -206,6 +206,7 @@
 
             &>.NodeArea {
                 flex-grow: 1;
+                min-width: 40ch;
 
                 &>.BasicText {
                     background: unset;
@@ -236,6 +237,7 @@
                     &>.TagsNode {
                         display: flex;
                         gap: 3px;
+                        flex-wrap: wrap;
 
                         &>.Tag {
                             background: #4b5563;
@@ -257,6 +259,7 @@
                                 color: var(--weight-color);
                                 writing-mode: vertical-lr;
                                 transform: rotate(180deg);
+
                                 &.Hidden {
                                     display: none;
                                 }
