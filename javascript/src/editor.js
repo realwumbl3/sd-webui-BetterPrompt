@@ -13,6 +13,25 @@ import {
 	encode as keyEncodeObject,
 } from "./keyIndexObject.js";
 
+class ClearPrompt {
+	/**
+	 * @param {Editor} editor	
+	 */
+	constructor(editor) {
+		html`
+				<div this=main class="ClearPrompt Button">
+					<div this=clear class="Button">clear prompt</div>
+					<div this=cancel class="Button Cancel">No</div>
+					<div this=confirm class="Button Confirm">Yes</div>
+				</div>
+			`.bind(this).with(({ main, clear, confirm, cancel } = {}) => {
+			clear.addEventListener("click", () => { main.classList.add("active") });
+			confirm.addEventListener("click", () => { editor.mainNodes.clear(); main.classList.remove("active") });
+			cancel.addEventListener("click", () => { main.classList.remove("active") });
+		});
+	}
+}
+
 export default class Editor {
 	constructor(editors, { tabNav, tabs }, tabname) {
 		this.editors = editors;
@@ -44,16 +63,16 @@ export default class Editor {
 					${this.mainNodes}
 					<div class="EditorFooter">
 						<div class="leftSide">
-							<div this="compose" class="Button Compose">Compose</div>
-							<div this="add_node" class="Button">Add Node</div>
-							<div this="add_tags" class="Button">Add Tags</div>
-							<div this="add_break" class="Button">Add BREAK</div>
-							<div this="add_group" class="Button">Add Group</div>
-							<div this="fit_content" class="Button">Fit content</div>
-							<div this="export" class="Button">Export</div>
-							<div this="import" class="Button">Import</div>
-							<div this="import_prompt" class="Button">from prompt</div>
-							<div this="import_file" class="Button">from file</div>
+							<div this="compose" class="Button Compose">COMPOSE</div>
+							<div this="add_node" class="Button">+ text</div>
+							<div this="add_tags" class="Button">+ tags</div>
+							<div this="add_break" class="Button">+ BREAK</div>
+							<div this="add_group" class="Button">+ group</div>
+							<div this="import" class="Button">JSON</div>
+							<div this="fit_content" class="Button">fit content</div>
+							<div this="export" class="Button">export</div>
+							<div this="import_file" class="Button">load file</div>
+							${new ClearPrompt(this)}
 						</div>
 						<div class="rightSide"></div>
 					</div>
@@ -80,12 +99,8 @@ export default class Editor {
 		this.compose.addEventListener("click", this.composePrompt.bind(this));
 
 		this.import.addEventListener("click", () => {
-			this.loadJson(prompt("Enter json"));
+			this.mainNodes.loadNodes(prompt("Enter json"));
 		});
-
-		this.import_prompt.addEventListener("click", () =>
-			this.loadJson(this.textarea.value)
-		);
 
 		this.import_file.addEventListener("click", () => this.openSelectFile());
 
@@ -122,21 +137,8 @@ export default class Editor {
 		tab.click();
 	}
 
-	recognizeData(data) {
-		if (data.includes("<betterpromptexport:")) {
-			const encoded64 = data.match(/<betterpromptexport:(.+)>/)[1];
-			const decodedLora = LZString.decompressFromBase64(encoded64);
-			const parsedLora = JSON.parse(decodedLora);
-			data = keyDecodeObject(parsedLora);
-		}
-		if (typeof data === "string") data = JSON.parse(data);
-		if (!Array.isArray(data)) return null;
-		return data;
-	}
-
 	loadJson(json) {
-		const recognizedData = this.recognizeData(json);
-		recognizedData && this.mainNodes.loadJson(recognizedData);
+		this.mainNodes.loadJson(json);
 	}
 
 	async openSelectFile() {

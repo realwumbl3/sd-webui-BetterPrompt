@@ -78,6 +78,18 @@
                 gap: 5px;
             }
 
+            & .ClearPrompt {
+
+                & .Button.Cancel,
+                & .Button.Confirm {
+                    display: none;
+                }
+
+                &.active .Button {
+                    display: block;
+                }
+            }
+
             & .Compose {
                 display: block;
                 padding: 0.2em 0.6em;

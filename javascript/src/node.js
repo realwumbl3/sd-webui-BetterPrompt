@@ -42,6 +42,7 @@ export default class Node {
 						<div class="Button" nodetype="text">node</div>
 						<div class="Button" nodetype="tags">tags</div>
 						<div class="Button" nodetype="break">break</div>
+						<div class="Button" nodetype="group">group</div>
 						<div class="Button" nodeaction="json">json</div>
 					</div>
 				</div>
@@ -65,10 +66,8 @@ export default class Node {
 			if (!button) return;
 			const node_action = button.getAttribute("nodeaction");
 			if (node_action) {
-				const inputJson = prompt("Enter json");
-				if (!inputJson) return;
 				this.nodefield.loadNodes(
-					this.editor.recognizeData(inputJson),
+					prompt("Enter json"),
 					this.nodefield.nodes.indexOf(this)
 				);
 				return;

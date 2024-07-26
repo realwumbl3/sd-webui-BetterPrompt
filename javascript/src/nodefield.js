@@ -7,8 +7,28 @@ export default class NodeField {
 		this.editor = editor;
 		this.nodes = new ZyXArray();
 		html`
-			<div this="nodefield" class="NodeField" zyx-array="${{ array: this.nodes }}"></div>
+			<div
+				this="nodefield"
+				class="NodeField"
+				zyx-array="${{ zyxactive: this.nodes }}"
+			></div>
 		`.bind(this);
+	}
+
+	clear() {
+		this.nodes.clear();
+	}
+
+	recognizeData(data) {
+		if (data.includes("<betterpromptexport:")) {
+			const encoded64 = data.match(/<betterpromptexport:(.+)>/)[1];
+			const decodedLora = LZString.decompressFromBase64(encoded64);
+			const parsedLora = JSON.parse(decodedLora);
+			data = keyDecodeObject(parsedLora);
+		}
+		if (typeof data === "string") data = JSON.parse(data);
+		if (!Array.isArray(data)) return null;
+		return data;
 	}
 
 	async addByType(type) {
@@ -18,13 +38,13 @@ export default class NodeField {
 	}
 
 	async loadJson(json) {
-		this.nodes.clear();
+		this.clear();
 		await this.loadNodes(json);
 	}
 
 	async loadNodes(json, index) {
 		const load = [];
-		for (const node of json) {
+		for (const node of this.recognizeData(json)) {
 			const { type } = node;
 			const nodeConstructor = await getNodeClass(type);
 			load.push(new nodeConstructor(this.editor, this, node));
