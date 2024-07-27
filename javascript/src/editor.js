@@ -13,25 +13,6 @@ import {
 	encode as keyEncodeObject,
 } from "./keyIndexObject.js";
 
-class ClearPrompt {
-	/**
-	 * @param {Editor} editor	
-	 */
-	constructor(editor) {
-		html`
-				<div this=main class="ClearPrompt Button">
-					<div this=clear class="Button">clear prompt</div>
-					<div this=cancel class="Button Cancel">No</div>
-					<div this=confirm class="Button Confirm">Yes</div>
-				</div>
-			`.bind(this).with(({ main, clear, confirm, cancel } = {}) => {
-			clear.addEventListener("click", () => { main.classList.add("active") });
-			confirm.addEventListener("click", () => { editor.mainNodes.clear(); main.classList.remove("active") });
-			cancel.addEventListener("click", () => { main.classList.remove("active") });
-		});
-	}
-}
-
 export default class Editor {
 	constructor(editors, { tabNav, tabs }, tabname) {
 		this.editors = editors;
@@ -64,10 +45,10 @@ export default class Editor {
 					<div class="EditorFooter">
 						<div class="leftSide">
 							<div this="compose" class="Button Compose">COMPOSE</div>
-							<div this="add_node" class="Button">+ text</div>
-							<div this="add_tags" class="Button">+ tags</div>
-							<div this="add_break" class="Button">+ BREAK</div>
-							<div this="add_group" class="Button">+ group</div>
+							<div this="add_textarea" class="Button" zyx-click="${_ => this.mainNodes.addByType("text")}">+ textarea</div>
+							<div this="add_tags" class="Button" zyx-click="${_ => this.mainNodes.addByType("tags")}">+ tags</div>
+							<div this="add_break" class="Button" zyx-click="${_ => this.mainNodes.addByType("break")}">+ BREAK</div>
+							<div this="add_group" class="Button" zyx-click="${_ => this.mainNodes.addByType("group")}">+ group</div>
 							<div this="import" class="Button">JSON</div>
 							<div this="fit_content" class="Button">fit content</div>
 							<div this="export" class="Button">export</div>
@@ -81,15 +62,6 @@ export default class Editor {
 		`
 			.bind(this)
 			.prependTo(this.tab.firstElementChild);
-
-		this.add_node.addEventListener("click", async () => this.mainNodes.addByType("text"));
-		this.add_break.addEventListener("click", async () =>
-			this.mainNodes.addByType("break")
-		);
-		this.add_tags.addEventListener("click", async () => this.mainNodes.addByType("tags"));
-		this.add_group.addEventListener("click", async () =>
-			this.mainNodes.addByType("group")
-		);
 
 		this.export.addEventListener("click", () => {
 			navigator.clipboard.writeText(JSON.stringify(this.mainNodes.culmJson(), null, 1));
@@ -171,20 +143,21 @@ export default class Editor {
 	}
 }
 
-function b64EncodeUnicode(str) {
-	return btoa(
-		encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
-			return String.fromCharCode("0x" + p1);
-		})
-	);
-}
-
-function b64DecodeUnicode(str) {
-	return decodeURIComponent(
-		Array.prototype.map
-			.call(atob(str), function (c) {
-				return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-			})
-			.join("")
-	);
+class ClearPrompt {
+	/**
+	 * @param {Editor} editor	
+	 */
+	constructor(editor) {
+		html`
+				<div this=main class="ClearPrompt Button">
+					<div this=clear class="Button">clear prompt</div>
+					<div this=cancel class="Button Cancel">No</div>
+					<div this=confirm class="Button Confirm">Yes</div>
+				</div>
+			`.bind(this).with(({ main, clear, confirm, cancel } = {}) => {
+			clear.addEventListener("click", () => { main.classList.add("active") });
+			confirm.addEventListener("click", () => { editor.mainNodes.clear(); main.classList.remove("active") });
+			cancel.addEventListener("click", () => { main.classList.remove("active") });
+		});
+	}
 }

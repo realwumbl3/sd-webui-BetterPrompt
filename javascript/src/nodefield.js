@@ -2,6 +2,13 @@ import zyX, { html, ZyXArray } from "./zyX-es6.js";
 import { getNodeClass } from "./node.js";
 import { reorderElement } from "./util.js";
 
+import LZString from "./LZString.js";
+
+import {
+	decode as keyDecodeObject,
+	encode as keyEncodeObject,
+} from "./keyIndexObject.js";
+
 export default class NodeField {
 	constructor(editor) {
 		this.editor = editor;
