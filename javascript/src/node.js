@@ -42,25 +42,22 @@ export default class Node {
 						<div class="Button" nodetype="text">textarea</div>
 						<div class="Button" nodetype="tags">tags</div>
 						<div class="Button" nodetype="break">break</div>
-						<div class="Button" nodetype="group">group</div>
 						<div class="Button" this=add_json>json</div>
+						<div class="Button" nodetype="group">group</div>
 					</div>
 				</div>
 				<div class="Controls">
 					<div class="Button" this="remove">X</div>
-					<div class="Button Mute" this="mute">${EyeIcon}</div>
-					<div class="Button Json" this="copy_json">json</div>
-					<div class="Sort">
-						<button this="down" class="Button">↓</button>
-						<button this="up" class="Button">↑</button>
-					</div>
+					<div class="Button Mute" this="mute" title="Mute Node">${EyeIcon}</div>
+					<div class="Button Json" this="copy_json" title="Copy Json to clipboard">{js}</div>
+					<div class="Thumb" title="Drag to reorder, drop on nother node to insert"
+						draggable=true
+					>::::::</div>
 				</div>
 				<div class="NodeArea" this="nodearea"></div>
 			</div>
 		`.bind(this);
 
-		this.up.addEventListener("click", () => this.reorder(-1));
-		this.down.addEventListener("click", () => this.reorder(1));
 		this.add_json.addEventListener("click", () => {
 			this.nodefield.loadNodes(
 				prompt("Enter json"),
@@ -108,7 +105,14 @@ export default class Node {
 		this.reflectJson();
 	}
 
-	reorder(direction) {
+	moveNodefields(newNodefield, index) {
+		console.log("moveNodefields", { newNodefield, index });
+		this.nodefield.nodes.splice(this.nodefield.nodes.indexOf(this), 1);
+		this.nodefield = newNodefield;
+		this.nodefield.nodes.splice(index ?? this.nodefield.nodes.length, 0, this);
+	}
+
+	shiftSelf(direction) {
 		this.nodefield.reorderNode(this, direction);
 	}
 

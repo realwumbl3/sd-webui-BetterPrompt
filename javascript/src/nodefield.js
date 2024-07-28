@@ -1,6 +1,6 @@
-import zyX, { html, ZyXArray } from "./zyX-es6.js";
+import zyX, { html, ZyXArray, getDomArray, WeakRefSet } from "./zyX-es6.js";
 import { getNodeClass } from "./node.js";
-import { reorderElement } from "./util.js";
+import { shiftArrayElement } from "./util.js";
 
 import LZString from "./LZString.js";
 
@@ -9,10 +9,21 @@ import {
 	encode as keyEncodeObject,
 } from "./keyIndexObject.js";
 
+const fields = new WeakRefSet();
+
+export function getNodeField(node) {
+	return fields.get().find(_ => getDomArray(_.nodefield)?.get(node));
+}
+
 export default class NodeField {
 	constructor(editor) {
+		fields.add(this);
 		this.editor = editor;
 		this.nodes = new ZyXArray();
+
+		this.dragTarget = null;
+		this.lastDragged = null;
+		this.lastDraggedPosition = null;
 		html`
 			<div
 				this="nodefield"
@@ -67,8 +78,8 @@ export default class NodeField {
 		this.nodes.splice(index ?? this.nodes.length, 0, node);
 	}
 
-	reorderNode(node, direction) {
-		reorderElement(this.nodes, node, direction);
+	shiftNode(node, direction) {
+		shiftArrayElement(this.nodes, node, direction);
 	}
 
 	removeNode(node) {

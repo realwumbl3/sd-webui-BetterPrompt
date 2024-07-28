@@ -12,7 +12,11 @@
         padding: .5em;
         resize: vertical;
         overflow: auto;
-        grid-template-rows: min-content auto min-content min-content;
+        grid-template-areas: "Header"
+            "NodeField"
+            "EditorFooter"
+            "ResolutionPicker";
+        grid-template-rows: max-content 1fr max-content;
         width: 100%;
         min-width: min(160px, 100%);
 
@@ -33,6 +37,7 @@
         }
 
         & .Header {
+            grid-area: Header;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -52,6 +57,7 @@
         }
 
         & .NodeField {
+            grid-area: NodeField;
             border: 1px solid #ffffff3d;
             padding: 10px 5px;
             border-radius: 13px;
@@ -62,6 +68,7 @@
         }
 
         & .EditorFooter {
+            grid-area: EditorFooter;
             display: flex;
             padding: 0 .5em;
             gap: 5px;
@@ -103,6 +110,7 @@
         }
 
         & .ExtraFooter {
+
             display: flex;
             padding: 0 .5em;
             gap: 5px;
@@ -180,19 +188,21 @@
 
             &>.Controls {
                 user-select: none;
-                display: flex;
+                display: grid;
                 gap: 1px;
                 align-items: stretch;
                 flex-wrap: wrap;
                 opacity: 0.6;
                 transition: opacity 0.2s;
-                width: min-content;
+                grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+                grid-auto-rows: max-content;
 
                 &:hover {
                     opacity: 1;
                 }
 
                 &>.Sort {
+                    grid-area: Row1;
                     display: flex;
                     gap: 1px;
                     align-items: center;
@@ -328,6 +338,7 @@
 
 
         }
+
     }
 
 }
@@ -362,4 +373,8 @@
         flex-basis: 100%;
         height: 0;
     }
+}
+
+.highlighted {
+    box-shadow: 0 0 0 2px orange;
 }

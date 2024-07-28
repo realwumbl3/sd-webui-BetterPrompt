@@ -18,25 +18,16 @@ export default class GroupNode extends Node {
 			<div class="Group" this="options">
 				${this.field}
 				<div class="AddNode">
-					<div class="Button" this="add_node">+ node</div>
-					<div class="Button" this="add_tags">+ tags</div>
-					<div class="Button" this="add_break">+ BREAK</div>
-					<div class="Button" this="add_group">+ group</div>
-					<div class="Button" this="add_json">+ JSON</div>
+					<div class="Button" this="add_node" zyx-click="${_ => this.field.addByType("text")}">+ textarea</div>
+					<div class="Button" this="add_tags" zyx-click="${_ => this.field.addByType("tags")}">+ tags</div>
+					<div class="Button" this="add_break" zyx-click="${_ => this.field.addByType("break")}">+ BREAK</div>
+					<div class="Button" this="add_json" zyx-click="${_ => this.field.loadNodes(prompt("Enter Json"))}">+ JSON</div>
+					<div class="Button" this="add_group" zyx-click="${_ => this.field.addByType("group")}">+ group</div>
 				</div>
 			</div>
 		`
 			.join(this)
 			.appendTo(this.nodearea);
-
-		this.add_group.addEventListener("click", async () => this.field.addByType("group"));
-		this.add_node.addEventListener("click", async () => this.field.addByType("text"));
-		this.add_break.addEventListener("click", async () => this.field.addByType("break"));
-		this.add_tags.addEventListener("click", async () => this.field.addByType("tags"));
-
-		this.add_json.addEventListener("click", async () =>
-			this.field.loadNodes(prompt("Enter Json"))
-		);
 
 		const value = super.getJson().value;
 		if (value) {
