@@ -23,8 +23,6 @@ export async function getNodeClass(type) {
 }
 
 export default class Node {
-	/** @type {PromptNode} */
-	#json = {};
 	/**
 	 * @param {Editor} editor
 	 * @param {NodeField} nodefield
@@ -32,8 +30,9 @@ export default class Node {
 	 */
 	constructor(editor, nodefield, initialJson) {
 		this.editor = editor;
-		this.nodefield = nodefield;
+		this.type = initialJson.type;
 
+		this.nodefield = nodefield;
 		html`
 			<div class="Node" this="main">
 				<div class="FloatingButtons">
@@ -93,11 +92,11 @@ export default class Node {
 		});
 
 		this.mute.addEventListener("click", () => {
-			this.#json.hidden = !this.#json.hidden;
+			this.json.hidden = !this.json.hidden;
 			this.reflectJson();
 		});
 
-		this.#json = {
+		this.json = {
 			hidden: false,
 			weight: 1,
 			...initialJson,
@@ -106,7 +105,6 @@ export default class Node {
 	}
 
 	moveNodefields(newNodefield, index) {
-		console.log("moveNodefields", { newNodefield, index });
 		this.nodefield.nodes.splice(this.nodefield.nodes.indexOf(this), 1);
 		this.nodefield = newNodefield;
 		this.nodefield.nodes.splice(index ?? this.nodefield.nodes.length, 0, this);
@@ -117,18 +115,18 @@ export default class Node {
 	}
 
 	isMuted() {
-		return this.#json.hidden;
+		return this.json.hidden;
 	}
 
 	reflectJson() {
-		this.main.style.opacity = this.#json.hidden ? 0.5 : 1;
+		this.main.style.opacity = this.json.hidden ? 0.5 : 1;
 	}
 
 	getJson() {
-		return this.#json;
+		return this.json;
 	}
 
 	assignJson(json) {
-		Object.assign(this.#json, json);
+		Object.assign(this.json, json);
 	}
 }

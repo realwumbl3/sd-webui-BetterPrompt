@@ -1,346 +1,354 @@
 .BetterPromptContainer {
     display: grid;
     position: relative;
+}
 
-    & .BetterPrompt {
-        display: grid;
-        gap: 5px;
-        position: relative;
-        background: #1f2937;
-        border: 1px solid #374151;
+.BetterPrompt {
+    /* container: editor / size; */
+
+    display: grid;
+    gap: 5px;
+    position: relative;
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 5px;
+    padding: .5em;
+    resize: vertical;
+    overflow: auto;
+    grid-template-areas: "Header"
+        "NodeField"
+        "EditorFooter"
+        "ResolutionPicker";
+    grid-template-rows: max-content 1fr max-content;
+    width: 100%;
+    min-width: min(160px, 100%);
+    min-height: 46px;
+
+    & .Button {
+        font-size: 15px;
+        padding: 0 5px;
+        background: #4b5563;
+        height: 100%;
         border-radius: 5px;
-        padding: .5em;
-        resize: vertical;
-        overflow: auto;
-        grid-template-areas: "Header"
-            "NodeField"
-            "EditorFooter"
-            "ResolutionPicker";
-        grid-template-rows: max-content 1fr max-content;
-        width: 100%;
-        min-width: min(160px, 100%);
+        user-select: none;
+        cursor: pointer;
 
-        & .Button {
-            font-size: 15px;
-            padding: 0 5px;
-            background: #4b5563;
+        &.Mute {
             height: 100%;
-            border-radius: 5px;
-            user-select: none;
-            cursor: pointer;
-
-            &.Mute {
-                height: 100%;
-                display: grid;
-                place-items: center;
-            }
+            display: grid;
+            place-items: center;
         }
+    }
 
-        & .Header {
-            grid-area: Header;
+    & .Header {
+        grid-area: Header;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ffffff3d;
+        padding: .5em;
+
+
+        & .RightSide {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ffffff3d;
-            padding: .5em;
-
-            & .title {
-                color: white;
-                font-weight: bold;
-                font-size: 1.1em;
-            }
-
-            & .RightSide {
-                display: flex;
-                gap: 5px;
-            }
-        }
-
-        & .NodeField {
-            grid-area: NodeField;
-            border: 1px solid #ffffff3d;
-            padding: 10px 5px;
-            border-radius: 13px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            overflow-y: scroll;
-        }
-
-        & .EditorFooter {
-            grid-area: EditorFooter;
-            display: flex;
-            padding: 0 .5em;
             gap: 5px;
-            justify-content: space-between;
+        }
+    }
 
-            >.leftSide {
-                display: flex;
-                gap: 5px;
-                height: max-content;
+    & .NodeField {
+        grid-area: NodeField;
+        border: 1px solid #ffffff3d;
+        padding: 10px 5px;
+        border-radius: 13px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        overflow-y: scroll;
+    }
+
+    & .EditorFooter {
+        grid-area: EditorFooter;
+        display: flex;
+        padding: 0 .5em;
+        gap: 5px;
+        justify-content: space-between;
+
+        >.leftSide {
+            display: flex;
+            gap: 5px;
+            height: max-content;
+        }
+
+        >.rightSide {
+            display: flex;
+            gap: 5px;
+        }
+
+        & .ClearPrompt {
+
+            & .Button.Cancel,
+            & .Button.Confirm {
+                display: none;
             }
 
-            >.rightSide {
-                display: flex;
-                gap: 5px;
-            }
-
-            & .ClearPrompt {
-
-                & .Button.Cancel,
-                & .Button.Confirm {
-                    display: none;
-                }
-
-                &.active .Button {
-                    display: block;
-                }
-            }
-
-            & .Compose {
+            &.active .Button {
                 display: block;
-                padding: 0.2em 0.6em;
-                background: orange;
-                color: white;
-                border-radius: 5px;
-                text-align: center;
-                cursor: pointer;
-                font-size: 1.5em;
             }
         }
 
-        & .ExtraFooter {
+        & .Compose {
+            display: block;
+            padding: 0.2em 0.6em;
+            background: orange;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
+    }
 
-            display: flex;
-            padding: 0 .5em;
-            gap: 5px;
-            overflow-x: scroll;
+    & .ExtraFooter {
 
-            >.Button.Resolution.active {
-                background: orange;
-            }
+        display: flex;
+        padding: 0 .5em;
+        gap: 5px;
+        overflow-x: scroll;
 
-            >.Separator {
-                border-left: 1px solid #ffffff3d;
-                height: 100%;
-            }
+        >.Button.Resolution.active {
+            background: orange;
         }
 
-        /* NODE */
+        >.Separator {
+            border-left: 1px solid #ffffff3d;
+            height: 100%;
+        }
+    }
 
-        .Node {
-            border: 1px solid #ffffff40;
-            padding: 2px;
-            border-radius: 8px;
-            display: flex;
-            gap: 5px;
-            height: min-content;
-            position: relative;
-            align-items: center;
-            /* width: min-content;
-            max-width: 100%; */
+    /* NODE */
 
-            & .FloatingButtons {
-                position: absolute;
-                top: 0;
-                width: 20%;
-                height: 0;
-                font-size: 8px;
-                opacity: 0;
-                display: grid;
+}
 
-                &>div {
-                    position: absolute;
-                    display: grid;
-                    grid-auto-flow: column;
-                    grid-auto-columns: max-content;
-                    left: 30px;
-                    top: -8px;
-                    align-content: space-between;
-                    height: 100%;
+.BetterPrompt .Node {
+    border: 1px solid #ffffff40;
+    padding: 2px;
+    border-radius: 8px;
+    display: flex;
+    gap: 5px;
+    height: min-content;
+    position: relative;
+    align-items: center;
 
-                    &>label {
-                        padding: 0px 2px;
-                        line-height: 7px;
-                        font-size: 10px;
-                        white-space: nowrap;
-                    }
+    & .FloatingButtons {
+        position: absolute;
+        top: 0;
+        width: 20%;
+        height: 0;
+        font-size: 8px;
+        opacity: 0;
+        display: grid;
 
-                    & .Button {
-                        padding: 0px 7px;
-                        line-height: 7px;
-                        background-color: transparent;
-                        cursor: copy;
-                        font-size: 10px;
-                        white-space: nowrap;
-                        opacity: .8;
+        &>div {
+            position: absolute;
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: max-content;
+            left: 30px;
+            top: -8px;
+            align-content: space-between;
+            height: 100%;
 
-                        &:hover {
-                            opacity: 1;
-                        }
-                    }
-                }
+            &>label {
+                padding: 0px 2px;
+                line-height: 7px;
+                font-size: 10px;
+                white-space: nowrap;
             }
 
-            &:hover>.FloatingButtons {
-                opacity: 1;
-            }
-
-            &>.Controls {
-                user-select: none;
-                display: grid;
-                gap: 1px;
-                align-items: stretch;
-                flex-wrap: wrap;
-                opacity: 0.6;
-                transition: opacity 0.2s;
-                grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
-                grid-auto-rows: max-content;
+            & .Button {
+                padding: 0px 7px;
+                line-height: 7px;
+                background-color: transparent;
+                cursor: copy;
+                font-size: 10px;
+                white-space: nowrap;
+                opacity: .8;
 
                 &:hover {
                     opacity: 1;
                 }
-
-                &>.Sort {
-                    grid-area: Row1;
-                    display: flex;
-                    gap: 1px;
-                    align-items: center;
-                    height: auto;
-                }
-
-                & .Button {
-                    text-align: center;
-                    font-size: 9px;
-                    padding: 0 2px;
-                    background: #4b5563;
-                    height: 13px;
-                    min-width: 20px;
-                    border-radius: 6px;
-                }
-
-                & .EyeIcon {
-                    width: .9em;
-                    height: .9em;
-                }
-
             }
+        }
+    }
 
-            &>.NodeArea {
-                flex-grow: 1;
-                min-width: 40ch;
+    &:hover>.FloatingButtons {
+        opacity: 1;
+    }
 
-                &>.BasicText {
-                    background: unset;
-                    border-radius: 5px;
-                    min-height: 1em;
-                    width: 100%;
-                    color: white;
-                    padding: 5px;
-                }
+    &>.Controls {
+        user-select: none;
+        display: grid;
+        gap: 1px;
+        align-items: stretch;
+        flex-wrap: wrap;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+        grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+        grid-auto-rows: max-content;
 
-                &>.Group {
+        &:hover {
+            opacity: 1;
+        }
 
-                    &>.AddNode {
-                        display: flex;
-                        gap: 2px;
-                        padding: 2px;
+        &>.Sort {
+            grid-area: Row1;
+            display: flex;
+            gap: 1px;
+            align-items: center;
+            height: auto;
+        }
 
-                        >.Button {
-                            font-size: 9px;
-                        }
-                    }
-                }
+        & .Button {
+            text-align: center;
+            font-size: 9px;
+            padding: 0 2px;
+            background: #4b5563;
+            height: 13px;
+            min-width: 20px;
+            border-radius: 6px;
+        }
 
-                &>.TagsNodeContainer {
-                    display: flex;
-                    gap: 5px;
-
-                    &>.TagsNode {
-                        display: flex;
-                        gap: 3px;
-                        flex-wrap: wrap;
-
-                        &>.Tag {
-                            background: #4b5563;
-                            display: flex;
-                            align-items: center;
-                            gap: 2px;
-                            border-radius: 5px;
-
-                            &.LORA {
-                                background: #751d49;
-                            }
-
-                            &>.Weight {
-                                font-size: 9px;
-                                font-family: 'Source Sans Pro';
-                                padding: 0 0.1em;
-                                border-radius: 5px;
-                                background: #4b5563;
-                                color: var(--weight-color);
-                                writing-mode: vertical-lr;
-                                transform: rotate(180deg);
-
-                                &.Hidden {
-                                    display: none;
-                                }
-                            }
-
-                            &>.Remove {
-                                font-size: 13px;
-                                height: max-content;
-                                cursor: pointer;
-                                user-select: none;
-                                color: darkgrey;
-                                padding: 0 0.1em;
-
-                                &:hover {
-                                    color: white;
-                                }
-                            }
-
-                            &>.AutoFitInput input {
-                                background: transparent;
-                                border: none;
-                                width: 100%;
-                                height: 100%;
-                                border-radius: 5px;
-                            }
-
-                            &>.AutoFitInput span,
-                            &>.AutoFitInput input {
-                                font-size: 14px;
-                            }
-
-                        }
-
-                    }
-                }
-
-                &>.Options {
-                    display: flex;
-                    gap: 5px;
-
-                    & label {
-                        display: flex;
-                        gap: 5px;
-                        align-items: center;
-                    }
-
-                    & input[type="radio"] {
-                        background-color: #232739;
-                        border-radius: 100%;
-                    }
-                }
-
-            }
-
-
+        & .EyeIcon {
+            width: .9em;
+            height: .9em;
         }
 
     }
 
+    &>.NodeArea {
+        flex-grow: 1;
+        min-width: 40ch;
+
+        &>.BasicText {
+            background: unset;
+            border-radius: 5px;
+            min-height: 1em;
+            width: 100%;
+            color: white;
+            padding: 5px;
+        }
+
+        &>.Group {
+
+            &>.AddNode {
+                display: flex;
+                gap: 2px;
+                padding: 2px;
+
+                >.Button {
+                    font-size: 9px;
+                }
+            }
+        }
+
+        &>.TagsNodeContainer {
+            display: flex;
+            gap: 5px;
+
+            &>.TagsNode {
+                display: flex;
+                gap: 3px;
+                flex-wrap: wrap;
+
+                &>.Tag {
+                    background: #4b5563;
+                    display: flex;
+                    align-items: center;
+                    gap: 2px;
+                    border-radius: 5px;
+
+                    &.LORA {
+                        background: #751d49;
+                    }
+
+                    &>.Weight {
+                        font-size: 9px;
+                        font-family: 'Source Sans Pro';
+                        padding: 0 0.1em;
+                        border-radius: 5px;
+                        background: #4b5563;
+                        color: var(--weight-color);
+                        writing-mode: vertical-lr;
+                        transform: rotate(180deg);
+
+                        &.Hidden {
+                            display: none;
+                        }
+                    }
+
+                    &>.Remove {
+                        font-size: 13px;
+                        height: max-content;
+                        cursor: pointer;
+                        user-select: none;
+                        color: darkgrey;
+                        padding: 0 0.1em;
+
+                        &:hover {
+                            color: white;
+                        }
+                    }
+
+                    &>.AutoFitInput input {
+                        background: transparent;
+                        border: none;
+                        width: 100%;
+                        height: 100%;
+                        border-radius: 5px;
+                    }
+
+                    &>.AutoFitInput span,
+                    &>.AutoFitInput input {
+                        font-size: 14px;
+                    }
+
+                }
+
+            }
+        }
+
+        &>.Options {
+            display: flex;
+            gap: 5px;
+
+            & label {
+                display: flex;
+                gap: 5px;
+                align-items: center;
+            }
+
+            & input[type="radio"] {
+                background-color: #232739;
+                border-radius: 100%;
+            }
+        }
+
+    }
+
+
+}
+
+.BetterPromptTitle {
+    color: white;
+    font-weight: bold;
+    font-size: 1em;
+    transition: font-size 0.2s;
+}
+
+@container editor (max-height: 3em) {
+    .BetterPromptTitle {
+        font-size: .8em;
+    }
 }
 
 .ResolutionPicker {
@@ -376,5 +384,6 @@
 }
 
 .highlighted {
-    box-shadow: 0 0 0 2px orange;
+    /* --highlight-color: orange; */
+    box-shadow: 0 0 0 2px var(--highlight-color);
 }

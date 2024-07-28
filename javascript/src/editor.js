@@ -30,33 +30,38 @@ export default class Editor {
 
 		this.mainNodes = new NodeField(this);
 
+		this.dragState = {
+			lastDragged: null,
+			dragTarget: null,
+		};
+
 		html`
 			<div class="BetterPromptContainer">
 				<div this="main" class="BetterPrompt">
 					<div class="Header">
-						<label class="title">⠕ BetterPrompt Editor ⠪</label>
+						<label class="BetterPromptTitle">⠕ BetterPrompt Editor ⠪</label>
 						<div class="RightSide">
-							<div this="send_to_other" class="Button">
+							<div this="send_to_other" class="Button" zyx-click="${this.sendToOtherEditor.bind(this)}">
 								Send to ${this.tabname === "txt2img" ? "img2img" : "txt2img"}
 							</div>
 						</div>
 					</div>
-					<div class="MainEditor"
+					<div this=main_editor class="MainEditor"
 						zyx-dragenter="${_ => this.dragEnter(_)}"
 						zyx-dragstart="${_ => this.dragStart(_)}"
 						zyx-dragend="${_ => this.dragEnd(_)}"
+						zyx-dragover="${_ => _.preventDefault()}"
 					>${this.mainNodes}</div>
 					<div class="EditorFooter">
 						<div class="leftSide">
-							<div this="compose" class="Button Compose">COMPOSE</div>
-							<div this="add_textarea" class="Button" zyx-click="${_ => this.mainNodes.addByType("text")}">+ textarea</div>
-							<div this="add_tags" class="Button" zyx-click="${_ => this.mainNodes.addByType("tags")}">+ tags</div>
-							<div this="add_break" class="Button" zyx-click="${_ => this.mainNodes.addByType("break")}">+ BREAK</div>
-							<div this="import" class="Button">+ JSON</div>
-							<div this="add_group" class="Button" zyx-click="${_ => this.mainNodes.addByType("group")}">+ group</div>
-							<div this="fit_content" class="Button">fit content</div>
-							<div this="export" class="Button">export</div>
-							<div this="import_file" class="Button">load file</div>
+							<div this="compose" class="Button Compose" zyx-click="${this.composePrompt.bind(this)}">COMPOSE</div>
+							<div this="add_textarea" class="Button" zyx-click="${() => this.mainNodes.addByType("text")}">+ textarea</div>
+							<div this="add_tags" class="Button" zyx-click="${() => this.mainNodes.addByType("tags")}">+ tags</div>
+							<div this="add_break" class="Button" zyx-click="${() => this.mainNodes.addByType("break")}">+ BREAK</div>
+							<div this="import" class="Button" zyx-click="${() => this.mainNodes.loadNodes(prompt("Enter json"))}">+ JSON</div>
+							<div this="add_group" class="Button" zyx-click="${() => this.mainNodes.addByType("group")}">+ group</div>
+							<div this="export" class="Button" zyx-click="${this.copyStateToClipboard.bind(this)}">export</div>
+							<div this="import_file" class="Button" zyx-click="${this.openSelectFile.bind(this)}">load file</div>
 							${new ClearPromptButton(this)}
 						</div>
 						<div class="rightSide"></div>
@@ -67,71 +72,64 @@ export default class Editor {
 			.bind(this)
 			.prependTo(this.tab.firstElementChild);
 
-		this.export.addEventListener("click", () => {
-			navigator.clipboard.writeText(JSON.stringify(this.mainNodes.culmJson(), null, 1));
-		});
-
-		this.fit_content.addEventListener("click", () => this.mainNodes.fitContent());
-		this.compose.addEventListener("click", this.composePrompt.bind(this));
-
-		this.import.addEventListener("click", () => {
-			this.mainNodes.loadNodes(prompt("Enter json"));
-		});
-
-		this.import_file.addEventListener("click", () => this.openSelectFile());
-
-		this.send_to_other.addEventListener("click", this.sendToOtherEditor.bind(this));
-
 		this.asyncConstructor();
+	}
 
+	copyStateToClipboard() {
+		navigator.clipboard.writeText(JSON.stringify(this.mainNodes.culmJson(), null, 1))
 	}
 
 	dragEnter(e) {
 		e.preventDefault();
 		const node = e.target.closest(".Node");
-		if (!node || this.lastDragged === node) return;
-		this.lastDragged = node;
-		highlightNode(this.lastDragged);
+		if (!node || this.dragState.lastDragged === node) return;
+		if (this.dragState.dragTarget.contains(node)) return highlightNode(this.dragState.dragTarget, "red");
+		this.dragState.lastDragged = node;
+		highlightNode(this.dragState.lastDragged);
 	}
 
 	dragStart(e) {
-		e.preventDefault();
-		this.dragTarget = e.target.closest(".Node");
+		this.dragState.dragTarget = e.target.closest(".Node");
 	}
 
 	dragEnd(e) {
 		e.preventDefault();
-		if (!this.lastDragged) return;
-		if (this.lastDragged !== this.dragTarget) this.dragReorder();
-		this.lastDragged = null;
-		this.dragTarget = null;
+		if (!this.dragState.lastDragged) return;
+		if (this.dragState.lastDragged !== this.dragState.dragTarget) this.dragReorder();
+		this.dragState.lastDragged = null;
+		this.dragState.dragTarget = null;
 	}
 
 	dragReorder() {
-		const draggedNodeField = getNodeField(this.dragTarget.closest(".NodeField"));
+		const draggedNodeField = getNodeField(this.dragState.dragTarget.closest(".NodeField"));
 		const draggedDomArray = getDomArray(draggedNodeField.nodefield);
-		const draggedItem = draggedDomArray.get(this.dragTarget);
+		const draggedItem = draggedDomArray.get(this.dragState.dragTarget);
 		if (!draggedItem) return;
-		const targetNodeField = getNodeField(this.lastDragged.closest(".NodeField"));
+		const targetNodeField = getNodeField(this.dragState.lastDragged.closest(".NodeField"));
 		const targetDomArray = getDomArray(targetNodeField.nodefield);
-		const indexInOwnField = targetNodeField.nodes.indexOf(targetDomArray.get(this.lastDragged));
+		const targetNode = targetDomArray.get(this.dragState.lastDragged);
+		if (targetNode.type === "group" && targetNode.field.nodes.length < 1) {
+			draggedItem.moveNodefields(targetNode.field, 0);
+			return;
+		}
+		const indexInOwnField = targetNodeField.nodes.indexOf(targetNode);
 		draggedItem.moveNodefields(targetNodeField, indexInOwnField);
 	}
 
 	async asyncConstructor() {
-		this.mainNodes.addByType("tags");
-		// this.mainNodes.loadJson([
-		// 	{ type: "text", value: "Welcome to BetterPrompt Editor" },
-		// 	{ type: "tags", value: ["tags", "are", "cool"] },
-		// 	{ type: "break", value: "break" },
-		// 	{
-		// 		type: "group", value: [
-		// 			{ type: "text", value: "This is a group" },
-		// 			{ type: "tags", value: ["tags", "are", "cool"] },
-		// 			{ type: "break", value: "break" },
-		// 		]
-		// 	}
-		// ])
+		// this.mainNodes.addByType("tags");
+		this.mainNodes.loadJson([
+			{ type: "text", value: "Welcome to BetterPrompt Editor" },
+			{ type: "tags", value: ["tags", "are", "cool"] },
+			{ type: "break", value: "break" },
+			{
+				type: "group", value: [
+					{ type: "text", value: "This is a group" },
+					{ type: "tags", value: ["tags", "are", "cool"] },
+					{ type: "break", value: "break" },
+				]
+			}
+		])
 	}
 
 	queryTab(cb) {
@@ -211,7 +209,7 @@ class ClearPromptButton {
 	}
 }
 
-function highlightNode(node) {
-	node.classList.add("highlighted");
-	zyX(node).delay("highlight", 300, () => node.classList.remove("highlighted"));
+function highlightNode(node, color) {
+	node.classList.add("highlighted"); node.style.setProperty("--highlight-color", color || "orange");
+	zyX(node).delay("highlight", 300, () => { node.classList.remove("highlighted"); node.style.removeProperty("--highlight-color") });
 }

@@ -11,6 +11,12 @@ import {
 
 const fields = new WeakRefSet();
 
+
+/**
+ * 
+ * @param {HTMLElement} nodefield 
+ * @returns {NodeField}
+ */
 export function getNodeField(nodefield) {
 	return fields.get().find(_ => _.nodefield === nodefield);
 }
