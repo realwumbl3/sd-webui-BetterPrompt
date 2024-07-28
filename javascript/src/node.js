@@ -35,6 +35,9 @@ export default class Node {
 		this.nodefield = nodefield;
 		html`
 			<div class="Node" this="main">
+				<div class="Thumb" title="Drag to reorder, drop on nother node to insert"
+					draggable=true
+				>::::::</div>
 				<div class="FloatingButtons">
 					<div this="float_buttons">
 						<label>add</label>
@@ -49,9 +52,6 @@ export default class Node {
 					<div class="Button" this="remove">X</div>
 					<div class="Button Mute" this="mute" title="Mute Node">${EyeIcon}</div>
 					<div class="Button Json" this="copy_json" title="Copy Json to clipboard">{js}</div>
-					<div class="Thumb" title="Drag to reorder, drop on nother node to insert"
-						draggable=true
-					>::::::</div>
 				</div>
 				<div class="NodeArea" this="nodearea"></div>
 			</div>

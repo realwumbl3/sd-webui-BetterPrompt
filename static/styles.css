@@ -139,50 +139,8 @@
     position: relative;
     align-items: center;
 
-    & .FloatingButtons {
-        position: absolute;
-        top: 0;
-        width: 20%;
-        height: 0;
-        font-size: 8px;
-        opacity: 0;
-        display: grid;
-
-        &>div {
-            position: absolute;
-            display: grid;
-            grid-auto-flow: column;
-            grid-auto-columns: max-content;
-            left: 30px;
-            top: -8px;
-            align-content: space-between;
-            height: 100%;
-
-            &>label {
-                padding: 0px 2px;
-                line-height: 7px;
-                font-size: 10px;
-                white-space: nowrap;
-            }
-
-            & .Button {
-                padding: 0px 7px;
-                line-height: 7px;
-                background-color: transparent;
-                cursor: copy;
-                font-size: 10px;
-                white-space: nowrap;
-                opacity: .8;
-
-                &:hover {
-                    opacity: 1;
-                }
-            }
-        }
-    }
-
-    &:hover>.FloatingButtons {
-        opacity: 1;
+    & .Thumb {
+        writing-mode: vertical-rl;
     }
 
     &>.Controls {
@@ -193,8 +151,9 @@
         flex-wrap: wrap;
         opacity: 0.6;
         transition: opacity 0.2s;
-        grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
-        grid-auto-rows: max-content;
+
+        grid-template-columns: repeat(2, max-content);
+        grid-auto-rows: 1fr;
 
         &:hover {
             opacity: 1;
@@ -335,6 +294,52 @@
 
     }
 
+
+    & .FloatingButtons {
+        position: absolute;
+        top: 0;
+        width: 20%;
+        height: 0;
+        font-size: 8px;
+        opacity: 0;
+        display: grid;
+
+        &>div {
+            position: absolute;
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: max-content;
+            left: 30px;
+            top: -8px;
+            align-content: space-between;
+            height: 100%;
+
+            &>label {
+                padding: 0px 2px;
+                line-height: 7px;
+                font-size: 10px;
+                white-space: nowrap;
+            }
+
+            & .Button {
+                padding: 0px 7px;
+                line-height: 7px;
+                background-color: transparent;
+                cursor: copy;
+                font-size: 10px;
+                white-space: nowrap;
+                opacity: .8;
+
+                &:hover {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+
+    &:hover>.FloatingButtons {
+        opacity: 1;
+    }
 
 }
 
