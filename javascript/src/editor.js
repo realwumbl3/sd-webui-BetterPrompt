@@ -95,6 +95,7 @@ export default class Editor {
 	}
 
 	dragStart(e) {
+		e.preventDefault();
 		this.dragTarget = e.target.closest(".Node");
 	}
 
@@ -107,30 +108,30 @@ export default class Editor {
 	}
 
 	dragReorder() {
-		const draggedNodeField = getNodeField(this.dragTarget);
+		const draggedNodeField = getNodeField(this.dragTarget.closest(".NodeField"));
 		const draggedDomArray = getDomArray(draggedNodeField.nodefield);
 		const draggedItem = draggedDomArray.get(this.dragTarget);
 		if (!draggedItem) return;
-		const targetNodeField = getNodeField(this.lastDragged);
+		const targetNodeField = getNodeField(this.lastDragged.closest(".NodeField"));
 		const targetDomArray = getDomArray(targetNodeField.nodefield);
 		const indexInOwnField = targetNodeField.nodes.indexOf(targetDomArray.get(this.lastDragged));
 		draggedItem.moveNodefields(targetNodeField, indexInOwnField);
 	}
 
 	async asyncConstructor() {
-		// this.mainNodes.addByType("tags");
-		this.mainNodes.loadJson([
-			{ type: "text", value: "Welcome to BetterPrompt Editor" },
-			{ type: "tags", value: ["tags", "are", "cool"] },
-			{ type: "break", value: "break" },
-			{
-				type: "group", value: [
-					{ type: "text", value: "This is a group" },
-					{ type: "tags", value: ["tags", "are", "cool"] },
-					{ type: "break", value: "break" },
-				]
-			}
-		])
+		this.mainNodes.addByType("tags");
+		// this.mainNodes.loadJson([
+		// 	{ type: "text", value: "Welcome to BetterPrompt Editor" },
+		// 	{ type: "tags", value: ["tags", "are", "cool"] },
+		// 	{ type: "break", value: "break" },
+		// 	{
+		// 		type: "group", value: [
+		// 			{ type: "text", value: "This is a group" },
+		// 			{ type: "tags", value: ["tags", "are", "cool"] },
+		// 			{ type: "break", value: "break" },
+		// 		]
+		// 	}
+		// ])
 	}
 
 	queryTab(cb) {

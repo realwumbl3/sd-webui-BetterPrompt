@@ -11,8 +11,8 @@ import {
 
 const fields = new WeakRefSet();
 
-export function getNodeField(node) {
-	return fields.get().find(_ => getDomArray(_.nodefield)?.get(node));
+export function getNodeField(nodefield) {
+	return fields.get().find(_ => _.nodefield === nodefield);
 }
 
 export default class NodeField {
@@ -20,10 +20,6 @@ export default class NodeField {
 		fields.add(this);
 		this.editor = editor;
 		this.nodes = new ZyXArray();
-
-		this.dragTarget = null;
-		this.lastDragged = null;
-		this.lastDraggedPosition = null;
 		html`
 			<div
 				this="nodefield"
