@@ -117,19 +117,19 @@ export default class Editor {
 	}
 
 	async asyncConstructor() {
-		// this.mainNodes.addByType("tags");
-		this.mainNodes.loadJson([
-			{ type: "text", value: "Welcome to BetterPrompt Editor" },
-			{ type: "tags", value: ["tags", "are", "cool"] },
-			{ type: "break", value: "break" },
-			{
-				type: "group", value: [
-					{ type: "text", value: "This is a group" },
-					{ type: "tags", value: ["tags", "are", "cool"] },
-					{ type: "break", value: "break" },
-				]
-			}
-		])
+		this.mainNodes.addByType("tags");
+		// this.mainNodes.loadJson([
+		// 	{ type: "text", value: "Welcome to BetterPrompt Editor" },
+		// 	{ type: "tags", value: ["tags", "are", "cool"] },
+		// 	{ type: "break", value: "break" },
+		// 	{
+		// 		type: "group", value: [
+		// 			{ type: "text", value: "This is a group" },
+		// 			{ type: "tags", value: ["tags", "are", "cool"] },
+		// 			{ type: "break", value: "break" },
+		// 		]
+		// 	}
+		// ])
 	}
 
 	queryTab(cb) {
