@@ -27,6 +27,7 @@ export default class Editor {
         this.resolutionPicker = new ResolutionPicker(this);
         this.textarea = this.tab.querySelector("textarea");
         if (this.tabname === "img2img") {
+            this.setInpaintPaddingLimit(512);
             this.denoiserControlExtender = new DenoiserControlExtender(this);
         }
 
@@ -92,6 +93,7 @@ export default class Editor {
     }
 
     dragStart(e) {
+        if (!e.target.matches(".Thumb")) return;
         this.dragState.dragTarget = e.target.closest(".Node");
     }
 
@@ -193,6 +195,15 @@ export default class Editor {
         const promptHeight = this.textarea.scrollHeight;
         await updateInput(this.textarea, `${prompt}\n\n\n\n\n<betterpromptexport:${lzString}>`);
         this.textarea.style.height = `${promptHeight}px`;
+    }
+
+    setInpaintPaddingLimit(limit) {
+        const slidercontainer = this.queryTab(_ => `#${_}_inpaint_full_res_padding`);
+        const inputs = slidercontainer.querySelectorAll("input");
+        for (const input of inputs) {
+            console.log({ input });
+            input.setAttribute("max", limit || 256);
+        }
     }
 }
 
