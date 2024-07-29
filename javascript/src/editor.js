@@ -13,6 +13,8 @@ import {
 	encode as keyEncodeObject,
 } from "./keyIndexObject.js";
 
+import Demo from "./demo.js";
+
 export default class Editor {
 	constructor(editors, { tabNav, tabs }, tabname) {
 		this.editors = editors;
@@ -55,13 +57,14 @@ export default class Editor {
 					<div class="EditorFooter">
 						<div class="leftSide">
 							<div this="compose" class="Button Compose" zyx-click="${this.composePrompt.bind(this)}">COMPOSE</div>
-							<div this="add_textarea" class="Button" zyx-click="${() => this.mainNodes.addByType("text")}">+ textarea</div>
-							<div this="add_tags" class="Button" zyx-click="${() => this.mainNodes.addByType("tags")}">+ tags</div>
-							<div this="add_break" class="Button" zyx-click="${() => this.mainNodes.addByType("break")}">+ BREAK</div>
-							<div this="import" class="Button" zyx-click="${() => this.mainNodes.loadNodes(prompt("Enter json"))}">+ JSON</div>
-							<div this="add_group" class="Button" zyx-click="${() => this.mainNodes.addByType("group")}">+ group</div>
-							<div this="export" class="Button" zyx-click="${this.copyStateToClipboard.bind(this)}">export</div>
-							<div this="import_file" class="Button" zyx-click="${this.openSelectFile.bind(this)}">load file</div>
+							<div class="Button" zyx-click="${() => this.mainNodes.addByType("text")}">+ textarea</div>
+							<div class="Button" zyx-click="${() => this.mainNodes.addByType("tags")}">+ tags</div>
+							<div class="Button" zyx-click="${() => this.mainNodes.addByType("break")}">+ BREAK</div>
+							<div class="Button" zyx-click="${() => this.mainNodes.loadNodes(prompt("Enter json"))}">+ JSON</div>
+							<div class="Button" zyx-click="${() => this.mainNodes.addByType("group")}">+ group</div>
+							<div class="Button" zyx-click="${this.copyStateToClipboard.bind(this)}">export</div>
+							<div class="Button" zyx-click="${() => this.mainNodes.loadJson(prompt("Enter json"))}">import</div>
+							<div class="Button" zyx-click="${this.openSelectFile.bind(this)}">load file</div>
 							${new ClearPromptButton(this)}
 						</div>
 						<div class="rightSide"></div>
@@ -95,41 +98,44 @@ export default class Editor {
 	dragEnd(e) {
 		e.preventDefault();
 		if (!this.dragState.lastDragged) return;
-		if (this.dragState.lastDragged !== this.dragState.dragTarget) this.dragReorder();
+		if (this.dragState.lastDragged !== this.dragState.dragTarget) this.dragReorder(e);
 		this.dragState.lastDragged = null;
 		this.dragState.dragTarget = null;
 	}
 
-	dragReorder() {
-		const draggedNodeField = getNodeField(this.dragState.dragTarget.closest(".NodeField"));
+	dragReorder(e) {
+		const { lastDragged, dragTarget } = this.dragState;
+		const draggedNodeField = getNodeField(dragTarget.closest(".NodeField"));
 		const draggedDomArray = getDomArray(draggedNodeField.nodefield);
-		const draggedItem = draggedDomArray.get(this.dragState.dragTarget);
-		if (!draggedItem) return;
-		const targetNodeField = getNodeField(this.dragState.lastDragged.closest(".NodeField"));
+		const draggedNode = draggedDomArray.get(dragTarget);
+		if (!draggedNode) return;
+		const targetNodeField = getNodeField(lastDragged.closest(".NodeField"));
 		const targetDomArray = getDomArray(targetNodeField.nodefield);
-		const targetNode = targetDomArray.get(this.dragState.lastDragged);
+		const targetNode = targetDomArray.get(lastDragged);
+		// console.log({ dragTarget, lastDragged, targetNode, draggedNode });
 		if (targetNode.type === "group" && targetNode.field.nodes.length < 1) {
-			draggedItem.moveNodefields(targetNode.field, 0);
+			draggedNode.moveNodefields(targetNode.field, 0);
+			targetNode.field.insertNode(draggedNode, 0);
 			return;
 		}
-		const indexInOwnField = targetNodeField.nodes.indexOf(targetNode);
-		draggedItem.moveNodefields(targetNodeField, indexInOwnField);
+		const heightHalf = lastDragged.offsetHeight / 2;
+		const nodeFieldRect = lastDragged.getBoundingClientRect();
+		const atBottomHalf = e.clientY - nodeFieldRect.top > heightHalf;
+		draggedNode.moveNodefields(targetNodeField);
+		const targetNodeIndex = targetNodeField.nodes.indexOf(targetNode)
+		const newIndex = targetNodeIndex + (atBottomHalf ? 1 : 0)
+		targetNodeField.insertNode(draggedNode, newIndex);
+		// console.log({ lastDragged, targetNodeIndex, atBottomHalf, newIndex, nodes: [...targetNodeField.nodes] });
+		// console.log({ resultingNodes: [...targetNodeField.nodes] });
 	}
 
 	async asyncConstructor() {
-		this.mainNodes.addByType("tags");
-		// this.mainNodes.loadJson([
-		// 	{ type: "text", value: "Welcome to BetterPrompt Editor" },
-		// 	{ type: "tags", value: ["tags", "are", "cool"] },
-		// 	{ type: "break", value: "break" },
-		// 	{
-		// 		type: "group", value: [
-		// 			{ type: "text", value: "This is a group" },
-		// 			{ type: "tags", value: ["tags", "are", "cool"] },
-		// 			{ type: "break", value: "break" },
-		// 		]
-		// 	}
-		// ])
+		// this.mainNodes.addByType("tags");
+		this.loadDemoState();
+	}
+
+	loadDemoState() {
+		this.mainNodes.loadJson(Demo);
 	}
 
 	queryTab(cb) {

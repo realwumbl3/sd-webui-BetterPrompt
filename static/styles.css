@@ -141,6 +141,8 @@
 
     & .Thumb {
         writing-mode: vertical-rl;
+        width: 0.8em;
+        line-height: .7em;
     }
 
     &>.Controls {

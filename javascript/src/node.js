@@ -35,7 +35,7 @@ export default class Node {
 		this.nodefield = nodefield;
 		html`
 			<div class="Node" this="main">
-				<div class="Thumb" title="Drag to reorder, drop on nother node to insert"
+				<div class="Thumb" title="Drag to reorder, Drop on another node to take its position"
 					draggable=true
 				>::::::</div>
 				<div class="FloatingButtons">
@@ -49,7 +49,7 @@ export default class Node {
 					</div>
 				</div>
 				<div class="Controls">
-					<div class="Button" this="remove">X</div>
+					<div class="Button" this="remove" title="Remove Node, Shift+Click to ignore confirmation">X</div>
 					<div class="Button Mute" this="mute" title="Mute Node">${EyeIcon}</div>
 					<div class="Button Json" this="copy_json" title="Copy Json to clipboard">{js}</div>
 				</div>
@@ -104,10 +104,9 @@ export default class Node {
 		this.reflectJson();
 	}
 
-	moveNodefields(newNodefield, index) {
+	moveNodefields(newNodefield) {
 		this.nodefield.nodes.splice(this.nodefield.nodes.indexOf(this), 1);
 		this.nodefield = newNodefield;
-		this.nodefield.nodes.splice(index ?? this.nodefield.nodes.length, 0, this);
 	}
 
 	shiftSelf(direction) {

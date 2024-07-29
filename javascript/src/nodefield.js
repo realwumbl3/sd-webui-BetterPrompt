@@ -58,6 +58,7 @@ export default class NodeField {
 	}
 
 	async loadJson(json) {
+		if (!json) return;
 		this.clear();
 		await this.loadNodes(json);
 	}
