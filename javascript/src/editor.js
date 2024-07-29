@@ -203,7 +203,7 @@ class ClearPromptButton {
     constructor(editor) {
         html`
 				<div this=main class="ClearPrompt Button">
-					<div this=clear class="Button">clear prompt</div>
+                    <div this=clear class="Button">clear prompt</div>
 					<div this=cancel class="Button Cancel">No</div>
 					<div this=confirm class="Button Confirm">Yes</div>
 				</div>
