@@ -38,40 +38,40 @@ export default class Editor {
         };
 
         html`
-			<div class="BetterPromptContainer">
-				<div this="main" class="BetterPrompt">
-					<div class="Header">
-						<label class="BetterPromptTitle">⠕ BetterPrompt Editor ⠪</label>
-						<div class="RightSide">
-							<div this="send_to_other" class="Button" zyx-click="${this.sendToOtherEditor.bind(this)}">
-								Send to ${this.tabname === "txt2img" ? "img2img" : "txt2img"}
-							</div>
-						</div>
-					</div>
-					<div this=main_editor class="MainEditor"
-						zyx-dragenter="${_ => this.dragEnter(_)}"
-						zyx-dragstart="${_ => this.dragStart(_)}"
-						zyx-dragend="${_ => this.dragEnd(_)}"
-						zyx-dragover="${_ => _.preventDefault()}"
-					>${this.mainNodes}</div>
-					<div class="EditorFooter">
-						<div class="leftSide">
-							<div this="compose" class="Button Compose" zyx-click="${this.composePrompt.bind(this)}">COMPOSE</div>
-							<div class="Button" zyx-click="${() => this.mainNodes.addByType("text")}">+ textarea</div>
-							<div class="Button" zyx-click="${() => this.mainNodes.addByType("tags")}">+ tags</div>
-							<div class="Button" zyx-click="${() => this.mainNodes.addByType("break")}">+ BREAK</div>
-							<div class="Button" zyx-click="${() => this.mainNodes.loadNodes(prompt("Enter json"))}">+ JSON</div>
-							<div class="Button" zyx-click="${() => this.mainNodes.addByType("group")}">+ group</div>
-							<div class="Button" zyx-click="${this.copyStateToClipboard.bind(this)}">export</div>
-							<div class="Button" zyx-click="${() => this.mainNodes.loadJson(prompt("Enter json"))}">import</div>
-							<div class="Button" zyx-click="${this.openSelectFile.bind(this)}">load file</div>
-							${new ClearPromptButton(this)}
-						</div>
-						<div class="rightSide"></div>
-					</div>
-				</div>
-			</div>
-		`
+            <div class="BetterPromptContainer">
+                <div this="main" class="BetterPrompt">
+                    <div class="Header">
+                        <label class="BetterPromptTitle">⠕ BetterPrompt Editor ⠪</label>
+                        <div class="RightSide">
+                            <div this="send_to_other" class="Button" zyx-click="${this.sendToOtherEditor.bind(this)}">
+                                Send to ${this.tabname === "txt2img" ? "img2img" : "txt2img"}
+                            </div>
+                        </div>
+                    </div>
+                    <div this=main_editor class="MainEditor"
+                        zyx-dragenter="${_ => this.dragEnter(_)}"
+                        zyx-dragstart="${_ => this.dragStart(_)}"
+                        zyx-dragend="${_ => this.dragEnd(_)}"
+                        zyx-dragover="${_ => _.preventDefault()}"
+                    >${this.mainNodes}</div>
+                    <div class="EditorFooter">
+                        <div class="leftSide">
+                            <div this="compose" class="Button Compose" zyx-click="${this.composePrompt.bind(this)}">COMPOSE</div>
+                            <div class="Button" zyx-click="${() => this.mainNodes.addByType("text")}">+ textarea</div>
+                            <div class="Button" zyx-click="${() => this.mainNodes.addByType("tags")}">+ tags</div>
+                            <div class="Button" zyx-click="${() => this.mainNodes.addByType("break")}">+ BREAK</div>
+                            <div class="Button" zyx-click="${() => this.mainNodes.loadNodes(prompt("Enter json"))}">+ JSON</div>
+                            <div class="Button" zyx-click="${() => this.mainNodes.addByType("group")}">+ group</div>
+                            <div class="Button" zyx-click="${this.copyStateToClipboard.bind(this)}">export</div>
+                            <div class="Button" zyx-click="${() => this.mainNodes.loadJson(prompt("Enter json"))}">import</div>
+                            <div class="Button" zyx-click="${this.openSelectFile.bind(this)}">load file</div>
+                            ${new ClearPromptButton(this)}
+                        </div>
+                        <div class="rightSide"></div>
+                    </div>
+                </div>
+            </div>
+        `
             .bind(this)
             .prependTo(this.tab.firstElementChild);
 
@@ -198,16 +198,16 @@ export default class Editor {
 
 class ClearPromptButton {
     /**
-     * @param {Editor} editor	
+     * @param {Editor} editor    
      */
     constructor(editor) {
         html`
-				<div this=main class="ClearPrompt Button">
+                <div this=main class="ClearPrompt Button">
                     <div this=clear class="Button">clear prompt</div>
-					<div this=cancel class="Button Cancel">No</div>
-					<div this=confirm class="Button Confirm">Yes</div>
-				</div>
-			`.bind(this).with(({ main, clear, confirm, cancel } = {}) => {
+                    <div this=cancel class="Button Cancel">No</div>
+                    <div this=confirm class="Button Confirm">Yes</div>
+                    </div>
+            `.bind(this).with(({ main, clear, confirm, cancel } = {}) => {
             clear.addEventListener("click", () => { main.classList.add("active") });
             confirm.addEventListener("click", () => { editor.mainNodes.clear(); main.classList.remove("active") });
             cancel.addEventListener("click", () => { main.classList.remove("active") });
