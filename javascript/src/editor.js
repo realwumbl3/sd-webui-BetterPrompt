@@ -202,12 +202,12 @@ class ClearPromptButton {
      */
     constructor(editor) {
         html`
-                <div this=main class="ClearPrompt Button">
-                    <div this=clear class="Button">clear prompt</div>
-                    <div this=cancel class="Button Cancel">No</div>
-                    <div this=confirm class="Button Confirm">Yes</div>
-                    </div>
-            `.bind(this).with(({ main, clear, confirm, cancel } = {}) => {
+            <div this=main class="ClearPrompt Button">
+                <div this=clear class="Button">clear prompt</div>
+                <div this=cancel class="Button Cancel">No</div>
+                <div this=confirm class="Button Confirm">Yes</div>
+            </div>
+        `.bind(this).with(({ main, clear, confirm, cancel } = {}) => {
             clear.addEventListener("click", () => { main.classList.add("active") });
             confirm.addEventListener("click", () => { editor.mainNodes.clear(); main.classList.remove("active") });
             cancel.addEventListener("click", () => { main.classList.remove("active") });
