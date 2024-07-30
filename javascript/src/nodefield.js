@@ -51,10 +51,10 @@ export default class NodeField {
         return data;
     }
 
-    async addByType(type) {
+    async addByType(type, initialData, index) {
         const nodeConstructor = await getNodeClass(type);
-        const break_node = new nodeConstructor(this.editor, this, {});
-        this.insertNode(break_node);
+        const break_node = new nodeConstructor(this.editor, this, initialData || {});
+        this.insertNode(break_node, index);
     }
 
     async loadJson(json) {
