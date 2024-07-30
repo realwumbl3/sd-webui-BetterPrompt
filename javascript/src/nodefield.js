@@ -1,6 +1,7 @@
 import zyX, { html, ZyXArray, getDomArray, WeakRefSet } from "./zyX-es6.js";
 import { getNodeClass } from "./node.js";
 import { shiftArrayElement } from "./util.js";
+import { recognizeData } from "./editor.js";
 
 import LZString from "./LZString.js";
 
@@ -10,7 +11,6 @@ import {
 } from "./keyIndexObject.js";
 
 const fields = new WeakRefSet();
-
 
 /**
  * 
@@ -39,17 +39,6 @@ export default class NodeField {
         this.nodes.clear();
     }
 
-    recognizeData(data) {
-        if (data.includes("<betterpromptexport:")) {
-            const encoded64 = data.match(/<betterpromptexport:(.+)>/)[1];
-            const decodedLora = LZString.decompressFromBase64(encoded64);
-            const parsedLora = JSON.parse(decodedLora);
-            data = keyDecodeObject(parsedLora);
-        }
-        if (typeof data === "string") data = JSON.parse(data);
-        if (!Array.isArray(data)) return null;
-        return data;
-    }
 
     async addByType(type, initialData, index) {
         const nodeConstructor = await getNodeClass(type);
@@ -65,7 +54,7 @@ export default class NodeField {
 
     async loadNodes(json, index) {
         const load = [];
-        for (const node of this.recognizeData(json)) {
+        for (const node of recognizeData(json)) {
             const { type } = node;
             const nodeConstructor = await getNodeClass(type);
             load.push(new nodeConstructor(this.editor, this, node));

@@ -174,8 +174,9 @@ export default class Editor {
             const file = fileInput.files[0];
             const reader = new FileReader();
             reader.onload = async () => {
-                const json = reader.result;
-                this.loadJson(json);
+                let fileContent = reader.result;
+                fileContent = fileContent.replace(/\0/g, ""); // remove null bytes (jpeg exif)
+                this.loadJson(fileContent);
             };
             reader.readAsText(file);
             fileInput.remove();
@@ -204,6 +205,19 @@ export default class Editor {
             input.setAttribute("max", limit || 256);
         }
     }
+}
+
+export function recognizeData(data) {
+    if (data.includes("<betterpromptexport:")) {
+        const encoded64 = data.match(/<betterpromptexport:(.+)>/)[1];
+        console.log("Recognized betterpromptexport", { encoded64 });
+        const decodedLora = LZString.decompressFromBase64(encoded64);
+        const parsedLora = JSON.parse(decodedLora);
+        data = keyDecodeObject(parsedLora);
+    }
+    if (typeof data === "string") data = JSON.parse(data);
+    if (!Array.isArray(data)) return null;
+    return data;
 }
 
 class ClearPromptButton {
