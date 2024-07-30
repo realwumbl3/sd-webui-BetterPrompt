@@ -76,12 +76,6 @@ export default class Editor {
             .bind(this)
             .prependTo(this.tab.firstElementChild);
 
-        document.body.addEventListener("keydown", (e) => {
-            if (e.Shift && e.key === "F11") {
-                this.loadDemoState();
-            }
-        });
-
         this.asyncConstructor();
     }
 
