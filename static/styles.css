@@ -62,9 +62,42 @@
         justify-content: space-between;
 
         >.leftSide {
-            display: flex;
+            display: grid;
             gap: 5px;
             height: max-content;
+            grid-template-columns: max-content auto;
+            grid-auto-rows: repeat(3, 1fr);
+
+            &>.Button {
+                font-size: 15px;
+                padding: 0 5px;
+                background: #4b5563;
+                height: 100%;
+                border-radius: 5px;
+                user-select: none;
+                cursor: pointer;
+            }
+
+            &>.Column>.Row.Status {
+                grid-row-start: 1;
+                grid-row-end: 3;
+                padding-left: 5px;
+                &>.Status {
+                    display: flex;
+                    gap: 5px;
+                    align-items: center;
+                }
+            }
+
+            &>.Column>.Row.Manage {
+                grid-row-start: 3;
+                grid-row-end: 4;
+                display: flex;
+                gap: 5px;
+            }
+
+
+
         }
 
         >.rightSide {

@@ -15,6 +15,55 @@ import {
 
 import Demo from "./demo.js";
 
+class EditorButton {
+    constructor(editor, { text, tooltip, click } = {}) {
+        this.editor = editor;
+        this.text = text;
+        this.click = click;
+        this.tooltip = tooltip || "";
+        html`
+            <div this=main class="Button" 
+                zyx-click="${this.onClick.bind(this)}"
+                zyx-mouseenter="${_ => editor.tT(this.tooltip, { ml: this.main })}"
+            >${this.text}</div>
+        `.bind(this);
+    }
+
+    onClick() {
+        this.click();
+    }
+}
+
+class ClearPromptButton {
+    /**
+     * @param {Editor} editor    
+     */
+    constructor(editor) {
+        html`
+            <div this=main class="ClearPrompt Button" zyx-mouseenter="${_ => editor.tT("Clear the prompt.", { ml: this.main })}">
+                <div this=clear class="Button" zyx-click="${_ => this.main.classList.remove("active")}">Clear</div>
+                <div this=cancel class="Button Cancel" zyx-click="${_ => this.main.classList.remove("active")}">No</div>
+                <div this=confirm class="Button Confirm" zyx-click="${_ => editor.mainNodes.clear()}">Yes</div>
+            </div>
+        `.bind(this);
+    }
+}
+
+class ComposeButton {
+    constructor(editor) {
+        this.editor = editor;
+        html`
+            <div this=main class="Compose" zyx-click="${() => this.editor.composePrompt()}"
+                zyx-mouseenter="${_ => editor.tT("Compose the prompt into the text area.", { ml: this.main })}"
+            >COMPOSE</div>
+        `.bind(this);
+    }
+
+    setModified(bool) {
+        this.main.classList.toggle("Modified", bool);
+    }
+}
+
 export default class Editor {
     constructor(editors, { tabNav, tabs }, tabname) {
         this.editors = editors;
@@ -38,11 +87,30 @@ export default class Editor {
             dragTarget: null,
         };
 
+        this.BUTTONS = [{
+            text: "export",
+            tooltip: "Export the current prompt to your clipboard as json.",
+            click: this.copyStateToClipboard.bind(this),
+        }, {
+            text: "import",
+            tooltip: "Import a prompt using normal / encoded json.",
+            click: this.loadJson.bind(this),
+        }, {
+            text: "load file",
+            tooltip: "Load a prompt from a stable-diffusion output file (exif metadata), or a json file.",
+            click: this.openSelectFile.bind(this),
+        }]
+
+        this.composeButton = new ComposeButton(this);
+
         html`
             <div class="BetterPromptContainer">
                 <div this="main" class="BetterPrompt">
                     <div class="Header">
-                        <label class="BetterPromptTitle">⠕ BetterPrompt Editor ⠪</label>
+                        <div class="LeftSide">
+                            <label class="BetterPromptTitle">⠕ BetterPrompt Editor ⠪</label>
+                            <a href="https://github.com/realwumbl3/sd-webui-BetterPrompt" target="_blank" class="Button">GitHub</a>
+                        </div>
                         <div class="RightSide">
                             <div this="send_to_other" class="Button" zyx-click="${this.sendToOtherEditor.bind(this)}">
                                 Send to ${this.tabname === "txt2img" ? "img2img" : "txt2img"}
@@ -59,11 +127,18 @@ export default class Editor {
                     </div>
                     <div class="EditorFooter">
                         <div class="leftSide">
-                            <div this="compose" class="Button Compose" zyx-click="${this.composePrompt.bind(this)}">COMPOSE</div>
-                            <div class="Button" zyx-click="${this.copyStateToClipboard.bind(this)}">export</div>
-                            <div class="Button" zyx-click="${() => this.mainNodes.loadJson(prompt("Enter json"))}">import</div>
-                            <div class="Button" zyx-click="${this.openSelectFile.bind(this)}">load file</div>
-                            ${new ClearPromptButton(this)}
+                            ${this.composeButton}
+                            <div class="Column">
+                                <div class="Row Status">
+                                    <div class="Status">
+                                        <span>|</span><span this=tooltip></span>
+                                    </div>
+                                </div>
+                                <div class="Row Manage">
+                                    ${new ClearPromptButton(this)}
+                                    ${this.BUTTONS.map(button => new EditorButton(this, button))}
+                                </div>
+                            </div>
                         </div>
                         <div class="rightSide"></div>
                     </div>
@@ -76,6 +151,14 @@ export default class Editor {
         this.mainNodes.addModifiedEventListener(() => this.onNodesModified());
 
         this.asyncConstructor();
+
+
+    }
+
+    tT(text, { ml, duration } = {}) {
+        this.tooltip.innerText = text;
+        zyX(this.tooltip).delay("tooltip", duration || 2000, () => { this.tooltip.innerText = "" });
+        ml && ml.addEventListener("mouseleave", () => console.log("tooltip") || zyX(this.tooltip).instant("tooltip"), { once: true });
     }
 
     copyStateToClipboard() {
@@ -83,7 +166,7 @@ export default class Editor {
     }
 
     onNodesModified(event, e) {
-        this.compose.classList.add("Modified")
+        this.composeButton.setModified(true);
     }
 
     dragEnter(e) {
@@ -195,7 +278,7 @@ export default class Editor {
     }
 
     async composePrompt() {
-        this.compose.classList.remove("Modified")
+        this.composeButton.setModified(false);
         const prompt = this.mainNodes.composePrompt();
         const encodedPrompt = keyEncodeObject(this.mainNodes.culmJson());
         const promptJson = JSON.stringify(encodedPrompt, null);
@@ -225,25 +308,6 @@ export function recognizeData(data) {
     if (typeof data === "string") data = JSON.parse(data);
     if (!Array.isArray(data)) return null;
     return data;
-}
-
-class ClearPromptButton {
-    /**
-     * @param {Editor} editor    
-     */
-    constructor(editor) {
-        html`
-            <div this=main class="ClearPrompt Button">
-                <div this=clear class="Button">clear prompt</div>
-                <div this=cancel class="Button Cancel">No</div>
-                <div this=confirm class="Button Confirm">Yes</div>
-            </div>
-        `.bind(this).with(({ main, clear, confirm, cancel } = {}) => {
-            clear.addEventListener("click", () => { main.classList.add("active") });
-            cancel.addEventListener("click", () => { main.classList.remove("active") });
-            confirm.addEventListener("click", () => { editor.mainNodes.clear(); main.classList.remove("active") });
-        });
-    }
 }
 
 function highlightNode(node, color) {

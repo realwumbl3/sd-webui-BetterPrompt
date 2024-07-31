@@ -36,10 +36,11 @@ export default class Node {
         this.nodefield = nodefield;
         html`
             <div class="Node" this="main">
-                <div class="Thumb" title="Drag to reorder, Drop on another node to take its position"
+                <div class="Thumb" 
                     draggable=true
+                    zyx-mouseenter="${() => editor.tT("Drag to reorder this node.", { ml: this.main })}"
                 >::::::</div>
-                <div this=floating_buttons class="FloatingButtons">
+                <div this=floating_buttons class="FloatingButtons" zyx-mouseenter="${() => editor.tT("Add a node next to this node.", { ml: this.main })}">
                     <div>
                         <label>add</label>
                         <div class="Button" nodetype="tags">tags</div>
@@ -50,9 +51,15 @@ export default class Node {
                     </div>
                 </div>
                 <div class="Controls">
-                    <div class="Button" this="remove" title="Remove Node, Shift+Click to ignore confirmation">X</div>
-                    <div class="Button Mute" this="mute" title="Mute Node">${EyeIcon}</div>
-                    <div class="Button Json" this="copy_json" title="Copy Json to clipboard">{js}</div>
+                    <div this=remove class="Button" 
+                        zyx-mouseenter="${() => editor.tT("Remove this node.", { ml: this.main })}"
+                    >X</div>
+                    <div this=mute class="Button Mute"
+                        zyx-mouseenter="${() => editor.tT("Mute this node.", { ml: this.main })}"
+                    >${EyeIcon}</div>
+                    <div this=copy_json class="Button Json"
+                        zyx-mouseenter="${() => editor.tT("Copy json of this node.", { ml: this.main })}"
+                    >{ js }</div>
                 </div>
                 <div class="NodeArea" this="nodearea"></div>
             </div>
