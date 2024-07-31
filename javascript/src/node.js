@@ -60,7 +60,6 @@ export default class Node {
 
         this.main.addEventListener("pointermove", (e) => {
             zyX(this).debounce("checkCursor", () => {
-                console.log("checking cursor");
                 const cursorIsInTopHalf = e.clientY < this.main.getBoundingClientRect().top + this.main.clientHeight / 2;
                 this.floating_buttons.classList.toggle("Bottom", !cursorIsInTopHalf);
                 const inAnotherNodeField = e.target.closest(".NodeField") !== this.nodefield.main;
