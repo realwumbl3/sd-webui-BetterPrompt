@@ -87,7 +87,8 @@
         & .Compose {
             display: block;
             padding: 0.2em 0.6em;
-            background: #751d49;
+            background: #090909a5;
+            outline: 2px solid #3737374d;
             color: white;
             border-radius: 5px;
             text-align: center;
@@ -95,7 +96,7 @@
             font-size: 1.5em;
 
             &.Modified {
-                background: orange;
+                animation: pulsingComposeButton 1s infinite;
             }
         }
     }
@@ -121,6 +122,23 @@
 
 }
 
+@keyframes pulsingComposeButton {
+    0% {
+        background: #090909a5;
+        outline: 2px solid #3737374d;
+    }
+
+    50% {
+        background: #09090959;
+        outline: 2px solid #ffffff4d;
+    }
+
+    100% {
+        background: #090909a5;
+        outline: 2px solid #3737374d;
+    }
+}
+
 .BetterPrompt .NodeField {
     grid-area: NodeField;
     border: 1px solid #ffffff3d;
@@ -142,7 +160,7 @@
         left: 13px;
 
         >.Button {
-            font-size: 11px;
+            font-size: 10px;
         }
     }
 
@@ -328,7 +346,7 @@
 
     }
 
-    &.CursorInNestedNodeField > .FloatingButtons {
+    &.CursorInNestedNodeField>.FloatingButtons {
         display: none;
     }
 
@@ -356,7 +374,7 @@
             grid-auto-flow: column;
             grid-auto-columns: max-content;
             left: 30px;
-            top: -7px;
+            top: -8px;
             align-content: space-between;
             height: 100%;
 
