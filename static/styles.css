@@ -32,11 +32,6 @@
         user-select: none;
         cursor: pointer;
 
-        &.Mute {
-            height: 100%;
-            display: grid;
-            place-items: center;
-        }
     }
 
     & .Header {
@@ -66,7 +61,28 @@
             gap: 5px;
             height: max-content;
             grid-template-columns: max-content auto;
-            grid-auto-rows: repeat(3, 1fr);
+            grid-template-rows: 1fr;
+
+            >.Column {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto max-content;
+                display: grid;
+
+                &>.Row.Status {
+                    padding-left: 5px;
+
+                    &>.Status {
+                        display: flex;
+                        gap: 5px;
+                        align-items: center;
+                    }
+                }
+
+                &>.Row.Manage {
+                    display: flex;
+                    gap: 5px;
+                }
+            }
 
             &>.Button {
                 font-size: 15px;
@@ -77,27 +93,6 @@
                 user-select: none;
                 cursor: pointer;
             }
-
-            &>.Column>.Row.Status {
-                grid-row-start: 1;
-                grid-row-end: 3;
-                padding-left: 5px;
-                &>.Status {
-                    display: flex;
-                    gap: 5px;
-                    align-items: center;
-                }
-            }
-
-            &>.Column>.Row.Manage {
-                grid-row-start: 3;
-                grid-row-end: 4;
-                display: flex;
-                gap: 5px;
-            }
-
-
-
         }
 
         >.rightSide {
@@ -106,6 +101,9 @@
         }
 
         & .ClearPrompt {
+            display: grid;
+            grid-auto-flow: column;
+            gap: 5px;
 
             & .Button.Cancel,
             & .Button.Confirm {
@@ -176,12 +174,13 @@
     grid-area: NodeField;
     border: 1px solid #ffffff3d;
     padding: 5px 2.5px;
-    border-radius: 8px;
+    border-radius: 5px;
     display: grid;
     grid-template: 1fr/1fr;
     gap: 3px;
     overflow-y: scroll;
     position: relative;
+    background: #00000038;
 
     &>.AddNodes {
         justify-self: start;
@@ -202,9 +201,8 @@
     }
 
     &>.NodeFieldList {
-        border: 1px solid #ffffff3d;
         padding: 10px 5px;
-        border-radius: 13px;
+        border-radius: 5px;
         display: flex;
         flex-direction: column;
         gap: 6px;
@@ -255,11 +253,24 @@
         & .Button {
             text-align: center;
             font-size: 9px;
-            padding: 0 2px;
+            padding: 0 3px;
             background: #4b5563;
             height: 13px;
             min-width: 20px;
-            border-radius: 6px;
+            border-radius: 5px;
+
+
+            &.Mute {
+                height: 100%;
+                display: grid;
+                place-items: center;
+                grid-auto-flow: column;
+                grid-row: 1 / span 2;
+
+                &>.mutelabel {
+                    display: none;
+                }
+            }
         }
 
         & .EyeIcon {
@@ -267,6 +278,16 @@
             height: .9em;
         }
 
+    }
+
+    &.Muted {
+        filter: brightness(0.8) contrast(1.2);
+
+        &>.Controls .Button.Mute {
+            &>.mutelabel {
+                display: block;
+            }
+        }
     }
 
     &>.NodeArea {

@@ -41,9 +41,11 @@ class ClearPromptButton {
     constructor(editor) {
         html`
             <div this=main class="ClearPrompt Button" zyx-mouseenter="${_ => editor.tT("Clear the prompt.", { ml: this.main })}">
-                <div this=clear class="Button" zyx-click="${_ => this.main.classList.remove("active")}">Clear</div>
+                <div this=clear class="Button" zyx-click="${_ => this.main.classList.add("active")}">Clear</div>
                 <div this=cancel class="Button Cancel" zyx-click="${_ => this.main.classList.remove("active")}">No</div>
-                <div this=confirm class="Button Confirm" zyx-click="${_ => editor.mainNodes.clear()}">Yes</div>
+                <div this=confirm class="Button Confirm" 
+                    zyx-click="${_ => editor.mainNodes.clear() + this.main.classList.remove("active")}"
+                >Yes</div>
             </div>
         `.bind(this);
     }
@@ -90,7 +92,7 @@ export default class Editor {
         this.BUTTONS = [{
             text: "export",
             tooltip: "Export the current prompt to your clipboard as json.",
-            click: this.copyStateToClipboard.bind(this),
+            click: () => this.copyStateToClipboard() + this.tT("Copied to clipboard."),
         }, {
             text: "import",
             tooltip: "Import a prompt using normal / encoded json.",

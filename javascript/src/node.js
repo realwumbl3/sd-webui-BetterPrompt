@@ -34,6 +34,9 @@ export default class Node {
         this.modifiedCallbacks = [];
 
         this.nodefield = nodefield;
+
+        this.tT = (tooltip) => editor.tT(tooltip, { ml: this.main });
+
         html`
             <div class="Node" this="main">
                 <div class="Thumb" 
@@ -43,23 +46,17 @@ export default class Node {
                 <div this=floating_buttons class="FloatingButtons" zyx-mouseenter="${() => editor.tT("Add a node next to this node.", { ml: this.main })}">
                     <div>
                         <label>add</label>
-                        <div class="Button" nodetype="tags">tags</div>
-                        <div class="Button" nodetype="break">break</div>
-                        <div class="Button" nodetype="text">textarea</div>
-                        <div class="Button" nodetype="group">group</div>
-                        <div class="Button" this=add_json>json</div>
+                        <div class="Button" nodetype="tags" zyx-mouseenter="${() => this.tT("Add a tags node.")}">tags</div>
+                        <div class="Button" nodetype="break"zyx-mouseenter="${() => this.tT("Add a break node.")}">break</div>
+                        <div class="Button" nodetype="text" zyx-mouseenter="${() => this.tT("Add a text node.")}">textarea</div>
+                        <div class="Button" nodetype="group" zyx-mouseenter="${() => this.tT("Add a group node.")}">group</div>
+                        <div class="Button" this=add_json zyx-mouseenter="${() => this.tT("Insert json.")}">json</div>
                     </div>
                 </div>
                 <div class="Controls">
-                    <div this=remove class="Button" 
-                        zyx-mouseenter="${() => editor.tT("Remove this node.", { ml: this.main })}"
-                    >X</div>
-                    <div this=mute class="Button Mute"
-                        zyx-mouseenter="${() => editor.tT("Mute this node.", { ml: this.main })}"
-                    >${EyeIcon}</div>
-                    <div this=copy_json class="Button Json"
-                        zyx-mouseenter="${() => editor.tT("Copy json of this node.", { ml: this.main })}"
-                    >{ js }</div>
+                    <div this=mute class="Button Mute"zyx-mouseenter="${() => this.tT("Mute this node.")}">${EyeIcon}<span class=mutelabel>muted</span></div>
+                    <div this=remove class="Button" zyx-mouseenter="${() => this.tT("Remove this node.")}">X</div>
+                    <div this=copy_json class="Button Json" zyx-mouseenter="${() => this.tT("Copy json of this node.")}">{ js }</div>
                 </div>
                 <div class="NodeArea" this="nodearea"></div>
             </div>
@@ -140,7 +137,7 @@ export default class Node {
     }
 
     reflectJson() {
-        this.main.style.opacity = this.json.hidden ? 0.5 : 1;
+        this.main.classList.toggle("Muted", this.json.hidden);
     }
 
     getJson() {
