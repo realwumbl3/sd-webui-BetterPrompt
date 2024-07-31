@@ -18,7 +18,7 @@ const fields = new WeakRefSet();
  * @returns {NodeField}
  */
 export function getNodeField(nodefield) {
-    return fields.get().find(_ => _.nodefield === nodefield);
+    return fields.get().find(_ => _.main === nodefield);
 }
 
 export default class NodeField {
@@ -27,12 +27,29 @@ export default class NodeField {
         this.editor = editor;
         this.nodes = new ZyXArray();
         html`
-            <div
-                this="nodefield"
-                class="NodeField"
-                zyx-array="${{ zyxactive: this.nodes }}"
-            ></div>
+            <div this=main class="NodeField">
+                <div
+                    this="nodefield"
+                    class="NodeFieldList"
+                    zyx-array="${{ zyxactive: this.nodes }}"
+                ></div>
+                <div class="AddNodes">
+                    <div class="Button" zyx-click="${() => this.addByType("text")}">+ textarea</div>
+                    <div class="Button" zyx-click="${() => this.addByType("tags")}">+ tags</div>
+                    <div class="Button" zyx-click="${() => this.addByType("break")}">+ BREAK</div>
+                    <div class="Button" zyx-click="${() => this.loadNodes(prompt("Enter json"))}">+ JSON</div>
+                    <div class="Button" zyx-click="${() => this.addByType("group")}">+ group</div>
+                </div>
+            </div>
         `.bind(this);
+
+        this.nodes.addListener(this.nodeArrayModified);
+
+    }
+
+    nodeArrayModified = (event, e) => {
+        console.log("NodeField ZyXArray event", event, e);
+        this.main.classList.toggle("Empty", this.nodes.length === 0);
     }
 
     clear() {

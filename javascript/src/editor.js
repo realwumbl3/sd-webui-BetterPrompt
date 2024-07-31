@@ -54,15 +54,12 @@ export default class Editor {
                         zyx-dragstart="${_ => this.dragStart(_)}"
                         zyx-dragend="${_ => this.dragEnd(_)}"
                         zyx-dragover="${_ => _.preventDefault()}"
-                    >${this.mainNodes}</div>
+                    >
+                        ${this.mainNodes}
+                    </div>
                     <div class="EditorFooter">
                         <div class="leftSide">
                             <div this="compose" class="Button Compose" zyx-click="${this.composePrompt.bind(this)}">COMPOSE</div>
-                            <div class="Button" zyx-click="${() => this.mainNodes.addByType("text")}">+ textarea</div>
-                            <div class="Button" zyx-click="${() => this.mainNodes.addByType("tags")}">+ tags</div>
-                            <div class="Button" zyx-click="${() => this.mainNodes.addByType("break")}">+ BREAK</div>
-                            <div class="Button" zyx-click="${() => this.mainNodes.loadNodes(prompt("Enter json"))}">+ JSON</div>
-                            <div class="Button" zyx-click="${() => this.mainNodes.addByType("group")}">+ group</div>
                             <div class="Button" zyx-click="${this.copyStateToClipboard.bind(this)}">export</div>
                             <div class="Button" zyx-click="${() => this.mainNodes.loadJson(prompt("Enter json"))}">import</div>
                             <div class="Button" zyx-click="${this.openSelectFile.bind(this)}">load file</div>
@@ -174,9 +171,8 @@ export default class Editor {
             const file = fileInput.files[0];
             const reader = new FileReader();
             reader.onload = async () => {
-                let fileContent = reader.result;
-                fileContent = fileContent.replace(/\0/g, ""); // remove null bytes (jpeg exif)
-                this.loadJson(fileContent);
+                const fileContent = reader.result?.replace(/\0/g, ""); // remove null bytes (jpeg exif)
+                fileContent && this.loadJson(fileContent);
             };
             reader.readAsText(file);
             fileInput.remove();
@@ -189,7 +185,7 @@ export default class Editor {
     async composePrompt() {
         const prompt = this.mainNodes.composePrompt();
         const encodedPrompt = keyEncodeObject(this.mainNodes.culmJson());
-        let promptJson = JSON.stringify(encodedPrompt, null);
+        const promptJson = JSON.stringify(encodedPrompt, null);
         const lzString = LZString.compressToBase64(promptJson);
         await updateInput(this.textarea, prompt);
         const promptHeight = this.textarea.scrollHeight;
@@ -201,7 +197,6 @@ export default class Editor {
         const slidercontainer = this.queryTab(_ => `#${_}_inpaint_full_res_padding`);
         const inputs = slidercontainer.querySelectorAll("input");
         for (const input of inputs) {
-            console.log({ input });
             input.setAttribute("max", limit || 256);
         }
     }
@@ -210,7 +205,6 @@ export default class Editor {
 export function recognizeData(data) {
     if (data.includes("<betterpromptexport:")) {
         const encoded64 = data.match(/<betterpromptexport:(.+)>/)[1];
-        console.log("Recognized betterpromptexport", { encoded64 });
         const decodedLora = LZString.decompressFromBase64(encoded64);
         const parsedLora = JSON.parse(decodedLora);
         data = keyDecodeObject(parsedLora);
@@ -233,8 +227,8 @@ class ClearPromptButton {
             </div>
         `.bind(this).with(({ main, clear, confirm, cancel } = {}) => {
             clear.addEventListener("click", () => { main.classList.add("active") });
-            confirm.addEventListener("click", () => { editor.mainNodes.clear(); main.classList.remove("active") });
             cancel.addEventListener("click", () => { main.classList.remove("active") });
+            confirm.addEventListener("click", () => { editor.mainNodes.clear(); main.classList.remove("active") });
         });
     }
 }

@@ -38,8 +38,8 @@ export default class Node {
                 <div class="Thumb" title="Drag to reorder, Drop on another node to take its position"
                     draggable=true
                 >::::::</div>
-                <div class="FloatingButtons">
-                    <div this="float_buttons">
+                <div this=floating_buttons class="FloatingButtons">
+                    <div>
                         <label>add</label>
                         <div class="Button" nodetype="text">textarea</div>
                         <div class="Button" nodetype="tags">tags</div>
@@ -57,6 +57,11 @@ export default class Node {
             </div>
         `.bind(this);
 
+        this.main.addEventListener("pointermove", (e) => {
+            const cursorIsInTopHalf = e.clientY < this.main.getBoundingClientRect().top + this.main.clientHeight / 2;
+            this.floating_buttons.classList.toggle("Bottom", !cursorIsInTopHalf);
+        });
+
         this.add_json.addEventListener("click", () => {
             this.nodefield.loadNodes(
                 prompt("Enter json"),
@@ -64,16 +69,16 @@ export default class Node {
             );
         });
 
-        this.float_buttons.addEventListener("click", async (e) => {
+        this.floating_buttons.addEventListener("click", async (e) => {
             const button = e.target.closest(".Button");
             if (!button) return;
+            const cursorIsInTopHalf = e.clientY < this.main.getBoundingClientRect().top + this.main.clientHeight / 2;
             const node = await getNodeClass(button.getAttribute("nodetype"));
             const tags_node = new node(this.editor, this.nodefield, {});
             this.nodefield.insertNode(
                 tags_node,
-                Math.max(0, this.nodefield.nodes.indexOf(this))
+                Math.max(0, this.nodefield.nodes.indexOf(this) + (cursorIsInTopHalf ? 0 : 1))
             );
-            this.nodefield.reflectNodes();
         });
 
         this.copy_json.addEventListener("click", () => {

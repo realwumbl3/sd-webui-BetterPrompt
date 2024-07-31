@@ -5,7 +5,6 @@
 
 .BetterPrompt {
     /* container: editor / size; */
-
     display: grid;
     gap: 5px;
     position: relative;
@@ -53,17 +52,6 @@
             display: flex;
             gap: 5px;
         }
-    }
-
-    & .NodeField {
-        grid-area: NodeField;
-        border: 1px solid #ffffff3d;
-        padding: 10px 5px;
-        border-radius: 13px;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        overflow-y: scroll;
     }
 
     & .EditorFooter {
@@ -129,12 +117,52 @@
 
 }
 
+.BetterPrompt .NodeField {
+    grid-area: NodeField;
+    border: 1px solid #ffffff3d;
+    padding: 5px 2.5px;
+    border-radius: 13px;
+    display: grid;
+    grid-template: 1fr/1fr;
+    gap: 3px;
+    overflow-y: scroll;
+    position: relative;
+
+    &>.AddNodes {
+        justify-self: start;
+        align-self: center;
+        position: absolute;
+        display: none;
+        gap: 2px;
+        padding: 2px;
+        left: 13px;
+
+        >.Button {
+            font-size: 11px;
+        }
+    }
+
+    &.Empty>.AddNodes {
+        display: flex;
+    }
+
+    &>.NodeFieldList {
+        border: 1px solid #ffffff3d;
+        padding: 10px 5px;
+        border-radius: 13px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        overflow-y: scroll;
+    }
+}
+
 .BetterPrompt .Node {
     border: 1px solid #ffffff40;
     padding: 2px;
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
-    gap: 5px;
+    gap: 4px;
     height: min-content;
     position: relative;
     align-items: center;
@@ -306,13 +334,22 @@
         opacity: 0;
         display: grid;
 
+        &.Bottom {
+            top: unset;
+            bottom: 0;
+
+            &>div {
+                top: 0;
+            }
+        }
+
         &>div {
             position: absolute;
             display: grid;
             grid-auto-flow: column;
             grid-auto-columns: max-content;
             left: 30px;
-            top: -8px;
+            top: -7px;
             align-content: space-between;
             height: 100%;
 
