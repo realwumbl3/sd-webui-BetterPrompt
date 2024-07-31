@@ -31,6 +31,7 @@ export default class Node {
     constructor(editor, nodefield, initialJson) {
         this.editor = editor;
         this.type = initialJson.type;
+        this.modifiedCallbacks = [];
 
         this.nodefield = nodefield;
         html`
@@ -41,11 +42,11 @@ export default class Node {
                 <div this=floating_buttons class="FloatingButtons">
                     <div>
                         <label>add</label>
-                        <div class="Button" nodetype="text">textarea</div>
                         <div class="Button" nodetype="tags">tags</div>
                         <div class="Button" nodetype="break">break</div>
-                        <div class="Button" this=add_json>json</div>
+                        <div class="Button" nodetype="text">textarea</div>
                         <div class="Button" nodetype="group">group</div>
+                        <div class="Button" this=add_json>json</div>
                     </div>
                 </div>
                 <div class="Controls">
@@ -58,8 +59,13 @@ export default class Node {
         `.bind(this);
 
         this.main.addEventListener("pointermove", (e) => {
-            const cursorIsInTopHalf = e.clientY < this.main.getBoundingClientRect().top + this.main.clientHeight / 2;
-            this.floating_buttons.classList.toggle("Bottom", !cursorIsInTopHalf);
+            zyX(this).debounce("checkCursor", () => {
+                console.log("checking cursor");
+                const cursorIsInTopHalf = e.clientY < this.main.getBoundingClientRect().top + this.main.clientHeight / 2;
+                this.floating_buttons.classList.toggle("Bottom", !cursorIsInTopHalf);
+                const inAnotherNodeField = e.target.closest(".NodeField") !== this.nodefield.main;
+                this.main.classList.toggle("CursorInNestedNodeField", inAnotherNodeField);
+            }, 100);
         });
 
         this.add_json.addEventListener("click", () => {
@@ -99,6 +105,7 @@ export default class Node {
         this.mute.addEventListener("click", () => {
             this.json.hidden = !this.json.hidden;
             this.reflectJson();
+            this.callModified();
         });
 
         this.json = {
@@ -107,6 +114,10 @@ export default class Node {
             ...initialJson,
         };
         this.reflectJson();
+    }
+
+    callModified() {
+        this.nodefield.onModified();
     }
 
     moveNodefields(newNodefield) {

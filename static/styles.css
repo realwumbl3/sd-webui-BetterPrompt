@@ -87,12 +87,16 @@
         & .Compose {
             display: block;
             padding: 0.2em 0.6em;
-            background: orange;
+            background: #751d49;
             color: white;
             border-radius: 5px;
             text-align: center;
             cursor: pointer;
             font-size: 1.5em;
+
+            &.Modified {
+                background: orange;
+            }
         }
     }
 
@@ -324,6 +328,9 @@
 
     }
 
+    &.CursorInNestedNodeField > .FloatingButtons {
+        display: none;
+    }
 
     & .FloatingButtons {
         position: absolute;
@@ -368,6 +375,7 @@
                 font-size: 10px;
                 white-space: nowrap;
                 opacity: .8;
+                transition: opacity 0.2s;
 
                 &:hover {
                     opacity: 1;

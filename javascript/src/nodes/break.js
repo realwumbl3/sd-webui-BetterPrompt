@@ -24,6 +24,7 @@ export default class BreakNode extends Node {
         this.options.addEventListener("change", () => {
             const value = this.options.querySelector("input:checked").value;
             this.assignJson({ value });
+            this.callModified();
         });
 
         this.updateOptions();

@@ -12,6 +12,7 @@ export default class TagsNode extends Node {
         });
 
         this.tags = new ZyXArray();
+        this.tags.addListener(this.tagsModified);
 
         html`
             <div class="TagsNodeContainer">
@@ -33,6 +34,10 @@ export default class TagsNode extends Node {
             for (const tag of value) this.addTag(tag);
         }
     }
+
+    tagsModified = (event, e) => {
+        this.callModified();
+    };
 
     removeTag(tag) {
         const previousTag = this.tags[this.tags.indexOf(tag) - 1];
@@ -145,6 +150,7 @@ class Tag {
     }
 
     updateTag() {
+        this.tagNode.callModified();
         const input_value = this.input.value().trim();
         this.value = input_value;
         this.main.classList.toggle(

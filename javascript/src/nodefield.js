@@ -34,27 +34,36 @@ export default class NodeField {
                     zyx-array="${{ zyxactive: this.nodes }}"
                 ></div>
                 <div class="AddNodes">
-                    <div class="Button" zyx-click="${() => this.addByType("text")}">+ textarea</div>
                     <div class="Button" zyx-click="${() => this.addByType("tags")}">+ tags</div>
+                    <div class="Button" zyx-click="${() => this.addByType("text")}">+ textarea</div>
                     <div class="Button" zyx-click="${() => this.addByType("break")}">+ BREAK</div>
-                    <div class="Button" zyx-click="${() => this.loadNodes(prompt("Enter json"))}">+ JSON</div>
                     <div class="Button" zyx-click="${() => this.addByType("group")}">+ group</div>
+                    <div class="Button" zyx-click="${() => this.loadNodes(prompt("Enter json"))}">+ JSON</div>
                 </div>
             </div>
         `.bind(this);
-
+        this.callbacks = [];
         this.nodes.addListener(this.nodeArrayModified);
-
     }
 
     nodeArrayModified = (event, e) => {
         this.main.classList.toggle("Empty", this.nodes.length === 0);
+        this.onModified();
+    }
+
+    addModifiedEventListener(callback) {
+        this.callbacks.push(callback);
+    }
+
+    onModified() {
+        for (const cb of this.callbacks) {
+            cb();
+        }
     }
 
     clear() {
         this.nodes.clear();
     }
-
 
     async addByType(type, initialData, index) {
         const nodeConstructor = await getNodeClass(type);
@@ -102,7 +111,4 @@ export default class NodeField {
         return prompt;
     }
 
-    fitContent() {
-        this.nodes.forEach((node) => node.fitContent?.());
-    }
 }

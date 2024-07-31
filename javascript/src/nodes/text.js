@@ -10,7 +10,7 @@ export default class TextNode extends Node {
             ...initialJson,
         });
 
-        const value = this.getJson().value ;
+        const value = this.getJson().value;
         html`
             <textarea class="BasicText" this="textarea" style="height: 42px;">${value}</textarea>
         `
@@ -20,13 +20,10 @@ export default class TextNode extends Node {
         this.textarea.addEventListener("input", () => {
             this.assignJson({ value: this.textarea.value });
             this.resizeToFitScrollheight();
+            this.callModified();
         });
 
         setTimeout(() => this.resizeToFitScrollheight(), 1);
-    }
-
-    fitContent() {
-        this.resizeToFitScrollheight();
     }
 
     resizeToFitScrollheight() {

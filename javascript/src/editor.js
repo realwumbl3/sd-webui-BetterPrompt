@@ -73,11 +73,17 @@ export default class Editor {
             .bind(this)
             .prependTo(this.tab.firstElementChild);
 
+        this.mainNodes.addModifiedEventListener(() => this.onNodesModified());
+
         this.asyncConstructor();
     }
 
     copyStateToClipboard() {
         navigator.clipboard.writeText(JSON.stringify(this.mainNodes.culmJson(), null, 1))
+    }
+
+    onNodesModified(event, e) {
+        this.compose.classList.add("Modified")
     }
 
     dragEnter(e) {
@@ -183,6 +189,7 @@ export default class Editor {
     }
 
     async composePrompt() {
+        this.compose.classList.remove("Modified")
         const prompt = this.mainNodes.composePrompt();
         const encodedPrompt = keyEncodeObject(this.mainNodes.culmJson());
         const promptJson = JSON.stringify(encodedPrompt, null);
