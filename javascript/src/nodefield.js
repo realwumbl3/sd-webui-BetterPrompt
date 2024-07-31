@@ -48,7 +48,6 @@ export default class NodeField {
     }
 
     nodeArrayModified = (event, e) => {
-        console.log("NodeField ZyXArray event", event, e);
         this.main.classList.toggle("Empty", this.nodes.length === 0);
     }
 
