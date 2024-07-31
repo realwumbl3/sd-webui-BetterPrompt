@@ -53,7 +53,7 @@ export default class Editor {
                         zyx-dragenter="${_ => this.dragEnter(_)}"
                         zyx-dragstart="${_ => this.dragStart(_)}"
                         zyx-dragend="${_ => this.dragEnd(_)}"
-                        zyx-dragover="${_ => _.preventDefault()}"
+                        zyx-dragover="${_ => this.dragState.dragTarget && _.preventDefault()}"
                     >
                         ${this.mainNodes}
                     </div>
@@ -87,7 +87,7 @@ export default class Editor {
     }
 
     dragEnter(e) {
-        if (!this.dragState.dragTarget) return;
+        if (!this.dragState.dragTarget) return true;
         e.preventDefault();
         const node = e.target.closest(".Node");
         if (!node || this.dragState.lastDragged === node) return;
@@ -97,11 +97,12 @@ export default class Editor {
     }
 
     dragStart(e) {
-        if (!e.target.matches(".Thumb")) return;
+        if (!e.target?.matches(".Thumb")) return true;
         this.dragState.dragTarget = e.target.closest(".Node");
     }
 
     dragEnd(e) {
+        if (!this.dragState.dragTarget) return true;
         e.preventDefault();
         if (!this.dragState.lastDragged) return this.dragReset();
         if (this.dragState.lastDragged !== this.dragState.dragTarget) this.dragReorder(e);
