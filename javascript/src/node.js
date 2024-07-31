@@ -54,7 +54,7 @@ export default class Node {
                     </div>
                 </div>
                 <div class="Controls">
-                    <div this=mute class="Button Mute"zyx-mouseenter="${() => this.tT("Mute this node.")}">${EyeIcon}<span class=mutelabel>muted</span></div>
+                    <div this=mute class="Button Mute"zyx-mouseenter="${() => this.tT("Mute/Unmute this node.")}">${EyeIcon}<span class=mutelabel>muted</span></div>
                     <div this=remove class="Button" zyx-mouseenter="${() => this.tT("Remove this node.")}">X</div>
                     <div this=copy_json class="Button Json" zyx-mouseenter="${() => this.tT("Copy json of this node.")}">{ js }</div>
                 </div>
