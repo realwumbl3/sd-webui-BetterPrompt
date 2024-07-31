@@ -87,6 +87,7 @@ export default class Editor {
     }
 
     dragEnter(e) {
+        if (!this.dragState.dragTarget) return;
         e.preventDefault();
         const node = e.target.closest(".Node");
         if (!node || this.dragState.lastDragged === node) return;
@@ -102,8 +103,12 @@ export default class Editor {
 
     dragEnd(e) {
         e.preventDefault();
-        if (!this.dragState.lastDragged) return;
+        if (!this.dragState.lastDragged) return this.dragReset();
         if (this.dragState.lastDragged !== this.dragState.dragTarget) this.dragReorder(e);
+        this.dragReset();
+    }
+
+    dragReset() {
         this.dragState.lastDragged = null;
         this.dragState.dragTarget = null;
     }
