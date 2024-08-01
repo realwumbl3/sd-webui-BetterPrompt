@@ -281,7 +281,7 @@
     }
 
     &.Muted {
-        filter: brightness(0.8) contrast(1.2);
+        opacity: 0.5;
 
         &>.Controls .Button.Mute {
             &>.mutelabel {
