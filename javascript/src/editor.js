@@ -96,7 +96,7 @@ export default class Editor {
         }, {
             text: "import",
             tooltip: "Import a prompt using normal / encoded json.",
-            click: this.loadJson.bind(this),
+            click: () => this.loadJson(prompt("Enter json")),
         }, {
             text: "load file",
             tooltip: "Load a prompt from a stable-diffusion output file (exif metadata), or a json file.",
