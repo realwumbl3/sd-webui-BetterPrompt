@@ -24,7 +24,7 @@ class EditorButton {
         html`
             <div this=main class="Button" 
                 zyx-click="${this.onClick.bind(this)}"
-                zyx-mouseenter="${_ => editor.tT(this.tooltip, { ml: this.main })}"
+                zyx-mouseenter="${_ => editor.setHint(this.tooltip, { ml: this.main })}"
             >${this.text}</div>
         `.bind(this);
     }
@@ -40,15 +40,33 @@ class ClearPromptButton {
      */
     constructor(editor) {
         html`
-            <div this=main class="ClearPrompt Button" zyx-mouseenter="${_ => editor.tT("Clear the prompt.", { ml: this.main })}">
+            <div this=main class="ClearPrompt Button" zyx-mouseenter="${_ => editor.setHint("Clear the prompt.", { ml: this.main })}">
                 <div this=clear class="Button" zyx-click="${_ => this.main.classList.add("active")}">Clear</div>
                 <div this=cancel class="Button Cancel" zyx-click="${_ => this.main.classList.remove("active")}">No</div>
-                <div this=confirm class="Button Confirm" 
-                    zyx-click="${_ => editor.mainNodes.clear() + this.main.classList.remove("active")}"
-                >Yes</div>
+                <div this=confirm class="Button Confirm" zyx-click="${_ => editor.mainNodes.clear() + this.main.classList.remove("active")}">Yes</div>
             </div>
         `.bind(this);
     }
+}
+
+class BetterPromptHintInfo {
+    constructor(editor) {
+        this.editor = editor;
+        html`
+            <div this=main class="BetterPromptHintInfo">    
+                <div this=hint class="Hint"><span>|</span><span this=tooltip></span></div>
+                <div this=info class="Info"></div>
+            </div>                                        
+
+        `.bind(this);
+    }
+
+    setHint(text, { ml, duration } = {}) {
+        this.tooltip.innerText = text;
+        zyX(this.tooltip).delay("tooltip", duration || 2000, () => { this.tooltip.innerText = "" });
+        ml && ml.addEventListener("mouseleave", () => console.log("tooltip") || zyX(this.tooltip).instant("tooltip"), { once: true });
+    }
+
 }
 
 class ComposeButton {
@@ -56,7 +74,7 @@ class ComposeButton {
         this.editor = editor;
         html`
             <div this=main class="Compose" zyx-click="${() => this.editor.composePrompt()}"
-                zyx-mouseenter="${_ => editor.tT("Compose the prompt into the text area.", { ml: this.main })}"
+                zyx-mouseenter="${_ => editor.setHint("Compose the prompt into the text area.", { ml: this.main })}"
             >COMPOSE</div>
         `.bind(this);
     }
@@ -92,7 +110,7 @@ export default class Editor {
         this.BUTTONS = [{
             text: "export",
             tooltip: "Export the current prompt to your clipboard as json.",
-            click: () => this.copyStateToClipboard() + this.tT("Copied to clipboard."),
+            click: () => this.copyStateToClipboard() + this.setHint("Copied to clipboard."),
         }, {
             text: "import",
             tooltip: "Import a prompt using normal / encoded json.",
@@ -104,6 +122,9 @@ export default class Editor {
         }]
 
         this.composeButton = new ComposeButton(this);
+        this.clearPromptButton = new ClearPromptButton(this);
+        this.betterPromptHint = new BetterPromptHintInfo(this);
+        this.setHint = this.betterPromptHint.setHint.bind(this.betterPromptHint);
 
         html`
             <div class="BetterPromptContainer">
@@ -133,11 +154,11 @@ export default class Editor {
                             <div class="Column">
                                 <div class="Row Status">
                                     <div class="Status">
-                                        <span>|</span><span this=tooltip></span>
+                                        ${this.betterPromptHint}
                                     </div>
                                 </div>
                                 <div class="Row Manage">
-                                    ${new ClearPromptButton(this)}
+                                    ${this.clearPromptButton}
                                     ${this.BUTTONS.map(button => new EditorButton(this, button))}
                                 </div>
                             </div>
@@ -153,8 +174,6 @@ export default class Editor {
         this.mainNodes.addModifiedEventListener(() => this.onNodesModified());
 
         this.asyncConstructor();
-
-
     }
 
     tT(text, { ml, duration } = {}) {

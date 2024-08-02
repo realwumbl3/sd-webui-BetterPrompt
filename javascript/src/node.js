@@ -35,28 +35,33 @@ export default class Node {
 
         this.nodefield = nodefield;
 
-        this.tT = (tooltip) => editor.tT(tooltip, { ml: this.main });
+        this.setHint = (tooltip) => editor.setHint(tooltip, { ml: this.main });
 
         html`
             <div class="Node" this="main">
                 <div class="Thumb" 
                     draggable=true
-                    zyx-mouseenter="${() => editor.tT("Drag to reorder this node.", { ml: this.main })}"
-                >::::::</div>
-                <div this=floating_buttons class="FloatingButtons" zyx-mouseenter="${() => editor.tT("Add a node next to this node.", { ml: this.main })}">
+                    zyx-mouseenter="${() => editor.setHint("Drag to reorder this node.", { ml: this.main })}"
+                >
+                ::::::
+                </div>
+                <div this=floating_buttons class="FloatingButtons" zyx-mouseenter="${() => editor.setHint("Add a node next to this node.", { ml: this.main })}">
                     <div>
                         <label>add</label>
-                        <div class="Button" nodetype="tags" zyx-mouseenter="${() => this.tT("Add a tags node.")}">tags</div>
-                        <div class="Button" nodetype="break"zyx-mouseenter="${() => this.tT("Add a break node.")}">break</div>
-                        <div class="Button" nodetype="text" zyx-mouseenter="${() => this.tT("Add a text node.")}">textarea</div>
-                        <div class="Button" nodetype="group" zyx-mouseenter="${() => this.tT("Add a group node.")}">group</div>
-                        <div class="Button" this=add_json zyx-mouseenter="${() => this.tT("Insert json.")}">json</div>
+                        <div class=Button nodetype=tags zyx-mouseenter="${() => editor.setHint("Add a tags node.")}">tags</div>
+                        <div class=Button nodetype=break zyx-mouseenter="${() => editor.setHint("Add a break node.")}">break</div>
+                        <div class=Button nodetype=text zyx-mouseenter="${() => editor.setHint("Add a text node.")}">textarea</div>
+                        <div class=Button nodetype=group zyx-mouseenter="${() => editor.setHint("Add a group node.")}">group</div>
+                        <div class=Button this=add_json zyx-mouseenter="${() => editor.setHint("Insert json.")}">json</div>
                     </div>
                 </div>
                 <div class="Controls">
-                    <div this=mute class="Button Mute"zyx-mouseenter="${() => this.tT("Mute/Unmute this node.")}">${EyeIcon}<span class=mutelabel>muted</span></div>
-                    <div this=remove class="Button" zyx-mouseenter="${() => this.tT("Remove this node.")}">X</div>
-                    <div this=copy_json class="Button Json" zyx-mouseenter="${() => this.tT("Copy json of this node.")}">{ js }</div>
+                    <div this=mute class="Button Mute"zyx-mouseenter="${() => editor.setHint("Mute/Unmute this node.")}">
+                        ${EyeIcon}
+                        <span class=mutelabel>muted</span
+                    ></div>
+                    <div this=remove class="Button" zyx-mouseenter="${() => editor.setHint("Remove this node.")}">X</div>
+                    <div this=copy_json class="Button Json" zyx-mouseenter="${() => editor.setHint("Copy json of this node.")}">{ js }</div>
                 </div>
                 <div class="NodeArea" this="nodearea"></div>
             </div>
