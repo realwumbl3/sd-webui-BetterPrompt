@@ -1,6 +1,59 @@
+gradio-app {
+    isolation: isolate;
+}
+
 .BetterPromptContainer {
     display: grid;
     position: relative;
+}
+
+body .BetterPromptAssets {
+    font-family: "Source Sans Pro", ui-sans-serif, "system-ui", sans-serif;
+    color: white;
+
+    & .Button {
+        font-size: 15px;
+        padding: 0 5px;
+        background: #4b5563;
+        height: 100%;
+        border-radius: 5px;
+        user-select: none;
+        cursor: pointer;
+    }
+
+    & .AutoFitInput {
+        position: relative;
+    }
+
+    & .AutoFitInput input,
+    & .AutoFitInput span {
+        white-space: pre;
+        padding: 0 .2em;
+    }
+
+    & .AutoFitInput input {
+        position: absolute;
+        inset: 0;
+    }
+
+    & .AutoFitInput span {
+        opacity: 0;
+        position: relative;
+    }
+
+    & textarea,
+    & input {
+        font-family: inherit;
+        color: white;
+    }
+}
+
+.BetterPromptAssets * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
 }
 
 .BetterPrompt {
@@ -23,17 +76,6 @@
     min-width: min(160px, 100%);
     min-height: 46px;
 
-    & .Button {
-        font-size: 15px;
-        padding: 0 5px;
-        background: #4b5563;
-        height: 100%;
-        border-radius: 5px;
-        user-select: none;
-        cursor: pointer;
-
-    }
-
     & .Header {
         grid-area: Header;
         display: flex;
@@ -46,6 +88,13 @@
         & .RightSide {
             display: flex;
             gap: 5px;
+
+            & .Button.FitHeight {
+                writing-mode: vertical-rl;
+                height: 1rem;
+                font-size: .7em;
+                text-align: center;
+            }
         }
     }
 
@@ -170,7 +219,8 @@
     }
 }
 
-.BetterPrompt .NodeField {
+.BetterPrompt .NodeField,
+.JsonImportPrompt .NodeField {
     grid-area: NodeField;
     border: 1px solid #ffffff3d;
     padding: 5px 2.5px;
@@ -181,6 +231,11 @@
     overflow-y: scroll;
     position: relative;
     background: #00000038;
+
+    &.MainNodes {
+        resize: horizontal;
+        overflow: auto;
+    }
 
     &>.AddNodes {
         justify-self: start;
@@ -210,7 +265,8 @@
     }
 }
 
-.BetterPrompt .Node {
+.BetterPrompt .Node,
+.JsonImportPrompt .Node {
     border: 1px solid #ffffff40;
     padding: 2px;
     border-radius: 6px;
@@ -351,19 +407,6 @@
                         }
                     }
 
-                    &>.Remove {
-                        font-size: 13px;
-                        height: max-content;
-                        cursor: pointer;
-                        user-select: none;
-                        color: darkgrey;
-                        padding: 0 0.1em;
-
-                        &:hover {
-                            color: white;
-                        }
-                    }
-
                     &>.AutoFitInput input {
                         background: transparent;
                         border: none;
@@ -375,6 +418,19 @@
                     &>.AutoFitInput span,
                     &>.AutoFitInput input {
                         font-size: 14px;
+                    }
+
+                    &>.Remove {
+                        font-size: 13px;
+                        height: max-content;
+                        cursor: pointer;
+                        user-select: none;
+                        color: darkgrey;
+                        padding: 0 0.1em;
+
+                        &:hover {
+                            color: white;
+                        }
                     }
 
                 }
@@ -504,6 +560,38 @@
     >.Newline {
         flex-basis: 100%;
         height: 0;
+    }
+}
+
+.JsonImportPrompt {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1f2937;
+    width: clamp(40em, 50vw, 90vw);
+    max-height: calc(100vh - 4em);
+    overflow-y: scroll;
+    border-radius: 5px;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    grid-template-columns: 1fr;
+    gap: 5px;
+    padding: 5px;
+
+    &>.Buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    &>.Input {
+        all: unset;
+        color: yellow;
+        font-family: monospace;
+        background: #000000e5;
+        padding: 5px;
+        border-radius: 5px;
     }
 }
 

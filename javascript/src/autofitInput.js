@@ -37,27 +37,3 @@ export default class AutoFitInput {
         this.span.textContent = this.input.value < 1 ? this.input.placeholder : this.input.value
     }
 }
-
-css`
-    .BetterPrompt {
-        .AutoFitInput {
-            position: relative;
-        }
-
-        .AutoFitInput input,
-        .AutoFitInput span {
-            white-space: pre;
-            padding: 0 .2em;
-        }
-
-        .AutoFitInput input {
-            position: absolute;
-            inset: 0;
-        }
-
-        .AutoFitInput span {
-            opacity: 0;
-            position: relative;
-        }
-    }
-`

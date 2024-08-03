@@ -1,6 +1,6 @@
 import zyX, { html, css } from "./zyX-es6.js";
 
-import Editor from "./editor.js";
+import Editor, { JsonImportPrompt } from "./editor.js";
 import { EyeIcon } from "./assets.js";
 import NodeField from "./nodefield.js";
 /**
@@ -77,17 +77,18 @@ export default class Node {
         });
 
         this.add_json.addEventListener("click", () => {
-            this.nodefield.loadNodes(
-                prompt("Enter json"),
-                this.nodefield.nodes.indexOf(this)
-            );
+            this.editor.openJsonImportPrompt((json) => {
+                this.nodefield.loadNodes(json, this.nodefield.nodes.indexOf(this));
+            });
         });
 
         this.floating_buttons.addEventListener("click", async (e) => {
             const button = e.target.closest(".Button");
-            if (!button) return;
+            const type = button.getAttribute("nodetype")
+            if (!type) return;
             const cursorIsInTopHalf = e.clientY < this.main.getBoundingClientRect().top + this.main.clientHeight / 2;
-            const node = await getNodeClass(button.getAttribute("nodetype"));
+            const node = await getNodeClass(type);
+            if (!node) return;
             const tags_node = new node(this.editor, this.nodefield, {});
             this.nodefield.insertNode(
                 tags_node,

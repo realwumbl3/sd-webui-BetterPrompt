@@ -64,7 +64,7 @@ class BetterPromptHintInfo {
     setHint(text, { ml, duration } = {}) {
         this.tooltip.innerText = text;
         zyX(this.tooltip).delay("tooltip", duration || 2000, () => { this.tooltip.innerText = "" });
-        ml && ml.addEventListener("mouseleave", () => console.log("tooltip") || zyX(this.tooltip).instant("tooltip"), { once: true });
+        ml && ml.addEventListener("mouseleave", () => zyX(this.tooltip).instant("tooltip"), { once: true });
     }
 
 }
@@ -101,6 +101,7 @@ export default class Editor {
         }
 
         this.mainNodes = new NodeField(this);
+        this.mainNodes.main.classList.add("MainNodes");
 
         this.dragState = {
             lastDragged: null,
@@ -114,7 +115,7 @@ export default class Editor {
         }, {
             text: "import",
             tooltip: "Import a prompt using normal / encoded json.",
-            click: () => this.loadJson(prompt("Enter json")),
+            click: this.openImportWindow.bind(this),
         }, {
             text: "load file",
             tooltip: "Load a prompt from a stable-diffusion output file (exif metadata), or a json file.",
@@ -127,17 +128,21 @@ export default class Editor {
         this.setHint = this.betterPromptHint.setHint.bind(this.betterPromptHint);
 
         html`
-            <div class="BetterPromptContainer">
+            <div class="BetterPromptContainer BetterPromptAssets">
                 <div this="main" class="BetterPrompt">
                     <div class="Header">
                         <div class="LeftSide">
                             <label class="BetterPromptTitle">⠕ BetterPrompt Editor ⠪</label>
                             <a href="https://github.com/realwumbl3/sd-webui-BetterPrompt" target="_blank" class="Button">GitHub</a>
+                            ${this.betterPromptHint}
                         </div>
-                        <div class="RightSide">
+                        <div this=right_side class="RightSide">
                             <div this="send_to_other" class="Button" zyx-click="${this.sendToOtherEditor.bind(this)}">
                                 Send to ${this.tabname === "txt2img" ? "img2img" : "txt2img"}
                             </div>
+                            <div zyx-click="${this.fitHeight.bind(this)}" class="Button FitHeight"
+                                zyx-mouseenter="${_ => this.setHint("Fit the height of the editor to the content.", { ml: this.right_side })}"
+                            >&lt &gt</div>
                         </div>
                     </div>
                     <div this=main_editor class="MainEditor"
@@ -154,7 +159,7 @@ export default class Editor {
                             <div class="Column">
                                 <div class="Row Status">
                                     <div class="Status">
-                                        ${this.betterPromptHint}
+                                        
                                     </div>
                                 </div>
                                 <div class="Row Manage">
@@ -176,10 +181,22 @@ export default class Editor {
         this.asyncConstructor();
     }
 
-    tT(text, { ml, duration } = {}) {
-        this.tooltip.innerText = text;
-        zyX(this.tooltip).delay("tooltip", duration || 2000, () => { this.tooltip.innerText = "" });
-        ml && ml.addEventListener("mouseleave", () => console.log("tooltip") || zyX(this.tooltip).instant("tooltip"), { once: true });
+    openJsonImportPrompt(cb) {
+        const newPrompt = new JsonImportPrompt(this, (json) => {
+            json && cb(json);
+        })
+        newPrompt.appendTo(document.body);
+        newPrompt.focus();
+    }
+
+    openImportWindow() {
+        this.openJsonImportPrompt((json) => {
+            json && this.loadJson(json);
+        });
+    }
+
+    fitHeight() {
+        this.main.style.height = "auto";
     }
 
     copyStateToClipboard() {
@@ -289,6 +306,7 @@ export default class Editor {
             reader.onload = async () => {
                 const fileContent = reader.result?.replace(/\0/g, ""); // remove null bytes (jpeg exif)
                 fileContent && this.loadJson(fileContent);
+
             };
             reader.readAsText(file);
             fileInput.remove();
@@ -316,6 +334,50 @@ export default class Editor {
         for (const input of inputs) {
             input.setAttribute("max", limit || 256);
         }
+    }
+}
+
+export class JsonImportPrompt {
+    constructor(editor, callback) {
+        this.editor = editor;
+        this.callback = callback;
+        this.previewNodeField = new NodeField(this.editor);
+
+        html`
+            <div this=main class="JsonImportPrompt BetterPromptAssets" zyx-wheel="${e => e.stopPropagation()}">
+                <div class="Buttons">
+                    <div this=import class="Button" zyx-click="${this.import.bind(this)}">Import</div>
+                    <div this=cancel class="Button" zyx-click="${this.cancel.bind(this)}">Cancel</div>
+                </div>
+                <input this=input class="Input" placeholder="Enter json here"></input>
+                <div this=preview class="Preview">${this.previewNodeField}</div>
+            </div>
+        `.bind(this);
+
+        this.input.addEventListener("input", this.onInput.bind(this));
+    }
+
+    focus() {
+        this.input.focus();
+        return this;
+    }
+
+    onInput() {
+        const data = recognizeData(this.input.value);
+        if (!data) return this.previewNodeField.clear();
+        this.previewNodeField.loadJson(data);
+    }
+
+    import() {  
+        const data = recognizeData(this.input.value);
+        if (!data) return;
+        this.callback(data);
+        this.main.remove();
+    }
+
+    cancel() {
+        this.main.remove();
+        this.callback(null);
     }
 }
 

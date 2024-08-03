@@ -38,12 +38,18 @@ export default class NodeField {
                     <div class="Button" zyx-click="${() => this.addByType("text")}">+ textarea</div>
                     <div class="Button" zyx-click="${() => this.addByType("break")}">+ BREAK</div>
                     <div class="Button" zyx-click="${() => this.addByType("group")}">+ group</div>
-                    <div class="Button" zyx-click="${() => this.loadNodes(prompt("Enter json"))}">+ JSON</div>
+                    <div class="Button" zyx-click="${() => this.promptJson()}">+ JSON</div>
                 </div>
             </div>
         `.bind(this);
         this.callbacks = [];
         this.nodes.addListener(this.nodeArrayModified);
+    }
+
+    promptJson() {
+        this.editor.openJsonImportPrompt((json) => {
+            this.loadJson(json);
+        });
     }
 
     nodeArrayModified = (event, e) => {
