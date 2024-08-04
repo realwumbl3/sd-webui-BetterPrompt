@@ -10,6 +10,9 @@ import {
     encode as keyEncodeObject,
 } from "./keyIndexObject.js";
 
+import JsonImportPrompt from "./importWindow..js";
+
+
 const fields = new WeakRefSet();
 
 /**
@@ -38,7 +41,7 @@ export default class NodeField {
                     <div class="Button" zyx-click="${() => this.addByType("text")}">+ textarea</div>
                     <div class="Button" zyx-click="${() => this.addByType("break")}">+ BREAK</div>
                     <div class="Button" zyx-click="${() => this.addByType("group")}">+ group</div>
-                    <div class="Button" zyx-click="${() => this.promptJson()}">+ JSON</div>
+                    <div class="Button" zyx-click="${() => this.openImportWindow()}">+ JSON</div>
                 </div>
             </div>
         `.bind(this);
@@ -46,9 +49,17 @@ export default class NodeField {
         this.nodes.addListener(this.nodeArrayModified);
     }
 
-    promptJson() {
-        this.editor.openJsonImportPrompt((json) => {
-            this.loadJson(json);
+    openJsonImportPrompt(cb) {
+        const newPrompt = new JsonImportPrompt(this.editor, (json) => {
+            json && cb(json);
+        })
+        newPrompt.appendTo(document.body);
+        newPrompt.focus();
+    }
+
+    openImportWindow() {
+        this.openJsonImportPrompt((json) => {
+            json && this.loadJson(json);
         });
     }
 

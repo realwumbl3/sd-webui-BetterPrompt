@@ -565,9 +565,9 @@ body .BetterPromptAssets {
 
 .JsonImportPrompt {
     position: absolute;
-    top: 50%;
+    top: 2em;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     background: #1f2937;
     width: clamp(40em, 50vw, 90vw);
     max-height: calc(100vh - 4em);

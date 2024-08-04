@@ -1,6 +1,6 @@
 import zyX, { html, css } from "./zyX-es6.js";
 
-import Editor, { JsonImportPrompt } from "./editor.js";
+import Editor from "./editor.js";
 import { EyeIcon } from "./assets.js";
 import NodeField from "./nodefield.js";
 /**
@@ -77,7 +77,7 @@ export default class Node {
         });
 
         this.add_json.addEventListener("click", () => {
-            this.editor.openJsonImportPrompt((json) => {
+            this.nodefield.openJsonImportPrompt((json) => {
                 this.nodefield.loadNodes(json, this.nodefield.nodes.indexOf(this));
             });
         });

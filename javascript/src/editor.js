@@ -115,7 +115,7 @@ export default class Editor {
         }, {
             text: "import",
             tooltip: "Import a prompt using normal / encoded json.",
-            click: this.openImportWindow.bind(this),
+            click: () => this.mainNodes.openImportWindow(),
         }, {
             text: "load file",
             tooltip: "Load a prompt from a stable-diffusion output file (exif metadata), or a json file.",
@@ -179,20 +179,6 @@ export default class Editor {
         this.mainNodes.addModifiedEventListener(() => this.onNodesModified());
 
         this.asyncConstructor();
-    }
-
-    openJsonImportPrompt(cb) {
-        const newPrompt = new JsonImportPrompt(this, (json) => {
-            json && cb(json);
-        })
-        newPrompt.appendTo(document.body);
-        newPrompt.focus();
-    }
-
-    openImportWindow() {
-        this.openJsonImportPrompt((json) => {
-            json && this.loadJson(json);
-        });
     }
 
     fitHeight() {
@@ -334,50 +320,6 @@ export default class Editor {
         for (const input of inputs) {
             input.setAttribute("max", limit || 256);
         }
-    }
-}
-
-export class JsonImportPrompt {
-    constructor(editor, callback) {
-        this.editor = editor;
-        this.callback = callback;
-        this.previewNodeField = new NodeField(this.editor);
-
-        html`
-            <div this=main class="JsonImportPrompt BetterPromptAssets" zyx-wheel="${e => e.stopPropagation()}">
-                <div class="Buttons">
-                    <div this=import class="Button" zyx-click="${this.import.bind(this)}">Import</div>
-                    <div this=cancel class="Button" zyx-click="${this.cancel.bind(this)}">Cancel</div>
-                </div>
-                <input this=input class="Input" placeholder="Enter json here"></input>
-                <div this=preview class="Preview">${this.previewNodeField}</div>
-            </div>
-        `.bind(this);
-
-        this.input.addEventListener("input", this.onInput.bind(this));
-    }
-
-    focus() {
-        this.input.focus();
-        return this;
-    }
-
-    onInput() {
-        const data = recognizeData(this.input.value);
-        if (!data) return this.previewNodeField.clear();
-        this.previewNodeField.loadJson(data);
-    }
-
-    import() {  
-        const data = recognizeData(this.input.value);
-        if (!data) return;
-        this.callback(data);
-        this.main.remove();
-    }
-
-    cancel() {
-        this.main.remove();
-        this.callback(null);
     }
 }
 
