@@ -200,7 +200,7 @@ export default class Editor {
         if (!node || this.dragState.lastDragged === node) return;
         if (this.dragState.dragTarget.contains(node)) return highlightNode(this.dragState.dragTarget, "red");
         this.dragState.lastDragged = node;
-        highlightNode(this.dragState.lastDragged);
+        highlightNode(this.dragState.lastDragged, "cyan");
     }
 
     dragStart(e) {
