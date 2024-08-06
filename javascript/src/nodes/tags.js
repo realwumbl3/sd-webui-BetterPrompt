@@ -158,10 +158,10 @@ class Tag {
             input_value.startsWith("<") && input_value.endsWith(">")
         );
         this.weight_indicator.textContent = this.weight;
-        this.weight_indicator.classList.toggle("Hidden", this.weight === 1);
         this.main.style.setProperty("--weight", this.weight);
-        this.main.classList.toggle("Positive", this.weight > 0);
-        this.main.classList.toggle("Negative", this.weight < 0);
+        this.main.classList.toggle("Neutral", this.weight === 1);
+        this.main.classList.toggle("Positive", this.weight > 1);
+        this.main.classList.toggle("Negative", this.weight < 1);
     }
 
     async onConnected() {
