@@ -395,13 +395,15 @@ body .BetterPromptAssets {
                     align-items: center;
                     gap: 2px;
                     border-radius: 5px;
+                    --weight-color: #4b5563;
 
                     &.LORA {
                         background: #751d49;
                     }
 
                     &>.Weight {
-                        font-size: 9px;
+                        font-size: 10px;
+                        font-weight: bolder;
                         font-family: 'Source Sans Pro';
                         padding: 0 0.1em;
                         border-radius: 5px;
@@ -409,10 +411,22 @@ body .BetterPromptAssets {
                         color: var(--weight-color);
                         writing-mode: vertical-lr;
                         transform: rotate(180deg);
+                    }
 
-                        &.Hidden {
+                    &.Neutral {
+                        &>.Weight {
                             display: none;
                         }
+                    }
+
+                    &.Negative {
+                        --weight-color: #fffb00;
+                        border-left: 2px solid var(--weight-color);
+                    }
+
+                    &.Positive {
+                        --weight-color: #00f2ff;
+                        border-left: 2px solid var(--weight-color);
                     }
 
                     &>.AutoFitInput input {

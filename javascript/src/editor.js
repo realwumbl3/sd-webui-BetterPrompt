@@ -94,7 +94,12 @@ export default class Editor {
         if (!this.tab) return console.error(`Tab ${this.tabname} not found`);
 
         this.resolutionPicker = new ResolutionPicker(this);
-        this.textarea = this.tab.querySelector("textarea");
+
+        const [positive, negative] = this.queryTab(_ => `#${_}_prompt_container`).querySelectorAll("textarea")
+    
+        this.textarea = positive
+        this.negativetextarea = negative
+
         if (this.tabname === "img2img") {
             this.setInpaintPaddingLimit(512);
             this.denoiserControlExtender = new DenoiserControlExtender(this);

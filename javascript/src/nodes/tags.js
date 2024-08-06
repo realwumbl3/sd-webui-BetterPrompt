@@ -159,6 +159,9 @@ class Tag {
         );
         this.weight_indicator.textContent = this.weight;
         this.weight_indicator.classList.toggle("Hidden", this.weight === 1);
+        this.main.style.setProperty("--weight", this.weight);
+        this.main.classList.toggle("Positive", this.weight > 0);
+        this.main.classList.toggle("Negative", this.weight < 0);
     }
 
     async onConnected() {
