@@ -17,10 +17,19 @@ observe(document.body, "#tabs", (tabs) => {
     })
 })
 
-
 export function getFileUrl(file) {
     return chrome.runtime ? chrome.runtime.getURL(file) : `BetterPrompt/${file}`
 }
+
+function setupBeforeUnload() {
+    window.addEventListener('beforeunload', function (e) {
+        e.preventDefault()
+        return "Are you sure you want to close this tab?"
+    });
+    console.log('beforeunload setup')
+}
+
+setTimeout(setupBeforeUnload, 1000)
 
 // Load styles
 css`@import url(${getFileUrl('static/styles.css')});`

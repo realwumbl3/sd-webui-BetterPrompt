@@ -15,75 +15,6 @@ import {
 
 import Demo from "./demo.js";
 
-class EditorButton {
-    constructor(editor, { text, tooltip, click } = {}) {
-        this.editor = editor;
-        this.text = text;
-        this.click = click;
-        this.tooltip = tooltip || "";
-        html`
-            <div this=main class="Button" 
-                zyx-click="${this.onClick.bind(this)}"
-                zyx-mouseenter="${_ => editor.setHint(this.tooltip, { ml: this.main })}"
-            >${this.text}</div>
-        `.bind(this);
-    }
-
-    onClick() {
-        this.click();
-    }
-}
-
-class ClearPromptButton {
-    /**
-     * @param {Editor} editor    
-     */
-    constructor(editor) {
-        html`
-            <div this=main class="ClearPrompt Button" zyx-mouseenter="${_ => editor.setHint("Clear the prompt.", { ml: this.main })}">
-                <div this=clear class="Button" zyx-click="${_ => this.main.classList.add("active")}">Clear</div>
-                <div this=cancel class="Button Cancel" zyx-click="${_ => this.main.classList.remove("active")}">No</div>
-                <div this=confirm class="Button Confirm" zyx-click="${_ => editor.mainNodes.clear() + this.main.classList.remove("active")}">Yes</div>
-            </div>
-        `.bind(this);
-    }
-}
-
-class BetterPromptHintInfo {
-    constructor(editor) {
-        this.editor = editor;
-        html`
-            <div this=main class="BetterPromptHintInfo">    
-                <div this=hint class="Hint"><span>|</span><span this=tooltip></span></div>
-                <div this=info class="Info"></div>
-            </div>                                        
-
-        `.bind(this);
-    }
-
-    setHint(text, { ml, duration } = {}) {
-        this.tooltip.innerText = text;
-        zyX(this.tooltip).delay("tooltip", duration || 2000, () => { this.tooltip.innerText = "" });
-        ml && ml.addEventListener("mouseleave", () => zyX(this.tooltip).instant("tooltip"), { once: true });
-    }
-
-}
-
-class ComposeButton {
-    constructor(editor) {
-        this.editor = editor;
-        html`
-            <div this=main class="Compose" zyx-click="${() => this.editor.composePrompt()}"
-                zyx-mouseenter="${_ => editor.setHint("Compose the prompt into the text area.", { ml: this.main })}"
-            >COMPOSE</div>
-        `.bind(this);
-    }
-
-    setModified(bool) {
-        this.main.classList.toggle("Modified", bool);
-    }
-}
-
 export default class Editor {
     constructor(editors, { tabNav, tabs }, tabname) {
         this.editors = editors;
@@ -96,12 +27,19 @@ export default class Editor {
         this.resolutionPicker = new ResolutionPicker(this);
 
         const [positive, negative] = this.queryTab(_ => `#${_}_prompt_container`).querySelectorAll("textarea")
-    
+
         this.textarea = positive
         this.negativetextarea = negative
 
+        for (const textarea of [this.textarea, this.negativetextarea]) {
+            textarea.addEventListener("wheel", (e) => {
+                // if the text area isn't focused, prevent the wheel event from scrolling the page
+                if (!textarea.matches(":focus")) e.preventDefault();
+            })
+        }
+
         if (this.tabname === "img2img") {
-            this.setInpaintPaddingLimit(512);
+            this.setInpaintPaddingLimit(1024);
             this.denoiserControlExtender = new DenoiserControlExtender(this);
         }
 
@@ -186,6 +124,10 @@ export default class Editor {
         this.asyncConstructor();
     }
 
+    async asyncConstructor() {
+        this.mainNodes.addByType("tags", { value: [""] });
+    }
+
     fitHeight() {
         this.main.style.height = "auto";
     }
@@ -252,9 +194,6 @@ export default class Editor {
         // console.log({ resultingNodes: [...targetNodeField.nodes] });
     }
 
-    async asyncConstructor() {
-        this.mainNodes.addByType("tags", { value: [""] });
-    }
 
     loadDemoState() {
         this.mainNodes.loadJson(Demo);
@@ -343,4 +282,73 @@ export function recognizeData(data) {
 function highlightNode(node, color) {
     node.classList.add("highlighted"); node.style.setProperty("--highlight-color", color || "orange");
     zyX(node).delay("highlight", 300, () => { node.classList.remove("highlighted"); node.style.removeProperty("--highlight-color") });
+}
+
+class EditorButton {
+    constructor(editor, { text, tooltip, click } = {}) {
+        this.editor = editor;
+        this.text = text;
+        this.click = click;
+        this.tooltip = tooltip || "";
+        html`
+            <div this=main class="Button" 
+                zyx-click="${this.onClick.bind(this)}"
+                zyx-mouseenter="${_ => editor.setHint(this.tooltip, { ml: this.main })}"
+            >${this.text}</div>
+        `.bind(this);
+    }
+
+    onClick() {
+        this.click();
+    }
+}
+
+class ClearPromptButton {
+    /**
+     * @param {Editor} editor    
+     */
+    constructor(editor) {
+        html`
+            <div this=main class="ClearPrompt Button" zyx-mouseenter="${_ => editor.setHint("Clear the prompt.", { ml: this.main })}">
+                <div this=clear class="Button" zyx-click="${_ => this.main.classList.add("active")}">Clear</div>
+                <div this=cancel class="Button Cancel" zyx-click="${_ => this.main.classList.remove("active")}">No</div>
+                <div this=confirm class="Button Confirm" zyx-click="${_ => editor.mainNodes.clear() + this.main.classList.remove("active")}">Yes</div>
+            </div>
+        `.bind(this);
+    }
+}
+
+class BetterPromptHintInfo {
+    constructor(editor) {
+        this.editor = editor;
+        html`
+            <div this=main class="BetterPromptHintInfo">    
+                <div this=hint class="Hint"><span>|</span><span this=tooltip></span></div>
+                <div this=info class="Info"></div>
+            </div>                                        
+
+        `.bind(this);
+    }
+
+    setHint(text, { ml, duration } = {}) {
+        this.tooltip.innerText = text;
+        zyX(this.tooltip).delay("tooltip", duration || 2000, () => { this.tooltip.innerText = "" });
+        ml && ml.addEventListener("mouseleave", () => zyX(this.tooltip).instant("tooltip"), { once: true });
+    }
+
+}
+
+class ComposeButton {
+    constructor(editor) {
+        this.editor = editor;
+        html`
+            <div this=main class="Compose" zyx-click="${() => this.editor.composePrompt()}"
+                zyx-mouseenter="${_ => editor.setHint("Compose the prompt into the text area.", { ml: this.main })}"
+            >COMPOSE</div>
+        `.bind(this);
+    }
+
+    setModified(bool) {
+        this.main.classList.toggle("Modified", bool);
+    }
 }

@@ -121,10 +121,12 @@ export default class NodeField {
     }
 
     composePrompt() {
-        const prompt = this.nodes
+        let prompt = this.nodes
             .map((node) => node.toPrompt())
             .filter(Boolean)
             .join(" ");
+        // remove repeating commas (, , , ) -> (,)
+        prompt = prompt.replace(/,(\s*,)+/g, ",");
         return prompt;
     }
 

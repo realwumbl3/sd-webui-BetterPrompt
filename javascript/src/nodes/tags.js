@@ -112,10 +112,12 @@ class Tag {
             if (e.altKey && e.key === "ArrowUp") {
                 this.weight = Math.min(1.7, Number((this.weight + 0.05).toFixed(2)));
                 this.updateTag();
+                e.preventDefault();
             }
             if (e.altKey && e.key === "ArrowDown") {
                 this.weight = Math.max(-1.7, Number((this.weight - 0.05).toFixed(2)));
                 this.updateTag();
+                e.preventDefault();
             }
         });
 
