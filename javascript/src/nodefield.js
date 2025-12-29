@@ -1,41 +1,33 @@
-import zyX, { html, ZyXArray,  WeakRefSet } from "./zyX-es6.js";
+import zyX, { html, LiveList, WeakRefSet } from "./zyX-es6.js";
 import { getNodeClass } from "./node.js";
 import { shiftArrayElement } from "./util.js";
 import { recognizeData } from "./editor.js";
 
 import LZString from "./LZString.js";
 
-import {
-    decode as keyDecodeObject,
-    encode as keyEncodeObject,
-} from "./keyIndexObject.js";
+import { decode as keyDecodeObject, encode as keyEncodeObject } from "./keyIndexObject.js";
 
 import JsonImportPrompt from "./importWindow..js";
-
 
 const fields = new WeakRefSet();
 
 /**
- * 
- * @param {HTMLElement} nodefield 
+ *
+ * @param {HTMLElement} nodefield
  * @returns {NodeField}
  */
 export function getNodeField(nodefield) {
-    return fields.get().find(_ => _.main === nodefield);
+    return fields.get().find((_) => _.main === nodefield);
 }
 
 export default class NodeField {
     constructor(editor) {
         fields.add(this);
         this.editor = editor;
-        this.nodes = new ZyXArray();
+        this.nodes = new LiveList();
         html`
-            <div this=main class="NodeField">
-                <div
-                    this="nodefield"
-                    class="NodeFieldList"
-                    zyx-array="${{ zyxactive: this.nodes }}"
-                ></div>
+            <div this="main" class="NodeField">
+                <div this="nodefield" class="NodeFieldList" zyx-live-list="${{ list: this.nodes }}"></div>
                 <div class="AddNodes">
                     <div class="Button" zyx-click="${() => this.addByType("tags")}">+ tags</div>
                     <div class="Button" zyx-click="${() => this.addByType("text")}">+ textarea</div>
@@ -46,13 +38,13 @@ export default class NodeField {
             </div>
         `.bind(this);
         this.callbacks = [];
-        this.nodes.addListener(this.nodeArrayModified);
+        this.nodes.subscribe(this.nodeArrayModified);
     }
 
     openJsonImportPrompt(cb) {
         const newPrompt = new JsonImportPrompt(this.editor, (json) => {
             json && cb(json);
-        })
+        });
         newPrompt.appendTo(document.body);
         newPrompt.focus();
     }
@@ -66,7 +58,7 @@ export default class NodeField {
     nodeArrayModified = (event, e) => {
         this.main.classList.toggle("Empty", this.nodes.length === 0);
         this.onModified();
-    }
+    };
 
     addModifiedEventListener(callback) {
         this.callbacks.push(callback);
@@ -129,5 +121,4 @@ export default class NodeField {
         prompt = prompt.replace(/,(\s*,)+/g, ",");
         return prompt;
     }
-
 }

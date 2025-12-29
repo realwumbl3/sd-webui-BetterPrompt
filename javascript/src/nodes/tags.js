@@ -1,4 +1,4 @@
-import zyX, { html, ZyXArray, sleep } from "../zyX-es6.js";
+import zyX, { html, LiveList, sleep } from "../zyX-es6.js";
 import Node from "../node.js";
 import AutoFitInput from "../autofitInput.js";
 
@@ -11,16 +11,12 @@ export default class TagsNode extends Node {
             ...initialJson,
         });
 
-        this.tags = new ZyXArray();
-        this.tags.addListener(this.tagsModified);
+        this.tags = new LiveList();
+        this.tags.subscribe(this.tagsModified);
 
         html`
             <div class="TagsNodeContainer">
-                <div
-                    class="TagsNode"
-                    this="tags_container"
-                    zyx-array="${{ zyxactive: this.tags }}"
-                ></div>
+                <div class="TagsNode" this="tags_container" zyx-live-list="${{ list: this.tags }}"></div>
                 <button this="add_tag" class="Button">+</button>
             </div>
         `
@@ -155,10 +151,7 @@ class Tag {
         this.tagNode.callModified();
         const input_value = this.input.value().trim();
         this.value = input_value;
-        this.main.classList.toggle(
-            "LORA",
-            input_value.startsWith("<") && input_value.endsWith(">")
-        );
+        this.main.classList.toggle("LORA", input_value.startsWith("<") && input_value.endsWith(">"));
         this.weight_indicator.textContent = this.weight;
         this.main.style.setProperty("--weight", this.weight);
         this.main.classList.toggle("Neutral", this.weight === 1);

@@ -142,8 +142,8 @@ export default class Editor {
 
     dragEnter(e) {
         if (!this.dragState.dragTarget) return true;
-        e.preventDefault();
-        const node = e.target.closest(".Node");
+        e.e.preventDefault();
+        const node = e.e.target.closest(".Node");
         if (!node || this.dragState.lastDragged === node) return;
         if (this.dragState.dragTarget.contains(node)) return highlightNode(this.dragState.dragTarget, "red");
         this.dragState.lastDragged = node;
@@ -151,13 +151,13 @@ export default class Editor {
     }
 
     dragStart(e) {
-        if (!e.target?.matches(".Thumb")) return true;
-        this.dragState.dragTarget = e.target.closest(".Node");
+        if (!e.e.target?.matches(".Thumb")) return true;
+        this.dragState.dragTarget = e.e.target.closest(".Node");
     }
 
     dragEnd(e) {
         if (!this.dragState.dragTarget) return true;
-        e.preventDefault();
+        e.e.preventDefault();
         if (!this.dragState.lastDragged) return this.dragReset();
         if (this.dragState.lastDragged !== this.dragState.dragTarget) this.dragReorder(e);
         this.dragReset();
