@@ -8,10 +8,7 @@ import NodeField, { getNodeField } from "./nodefield.js";
 
 import LZString from "./LZString.js";
 
-import {
-    decode as keyDecodeObject,
-    encode as keyEncodeObject,
-} from "./keyIndexObject.js";
+import { decode as keyDecodeObject, encode as keyEncodeObject } from "./keyIndexObject.js";
 
 import Demo from "./demo.js";
 
@@ -26,16 +23,16 @@ export default class Editor {
 
         this.resolutionPicker = new ResolutionPicker(this);
 
-        const [positive, negative] = this.queryTab(_ => `#${_}_prompt_container`).querySelectorAll("textarea")
+        const [positive, negative] = this.queryTab((_) => `#${_}_prompt_container`).querySelectorAll("textarea");
 
-        this.textarea = positive
-        this.negativetextarea = negative
+        this.textarea = positive;
+        this.negativetextarea = negative;
 
         for (const textarea of [this.textarea, this.negativetextarea]) {
             textarea.addEventListener("wheel", (e) => {
                 // if the text area isn't focused, prevent the wheel event from scrolling the page
                 if (!textarea.matches(":focus")) e.preventDefault();
-            })
+            });
         }
 
         if (this.tabname === "img2img") {
@@ -51,19 +48,23 @@ export default class Editor {
             dragTarget: null,
         };
 
-        this.BUTTONS = [{
-            text: "export",
-            tooltip: "Export the current prompt to your clipboard as json.",
-            click: () => this.copyStateToClipboard() + this.setHint("Copied to clipboard."),
-        }, {
-            text: "import",
-            tooltip: "Import a prompt using normal / encoded json.",
-            click: () => this.mainNodes.openImportWindow(),
-        }, {
-            text: "load file",
-            tooltip: "Load a prompt from a stable-diffusion output file (exif metadata), or a json file.",
-            click: this.openSelectFile.bind(this),
-        }]
+        this.BUTTONS = [
+            {
+                text: "export",
+                tooltip: "Export the current prompt to your clipboard as json.",
+                click: () => this.copyStateToClipboard() + this.setHint("Copied to clipboard."),
+            },
+            {
+                text: "import",
+                tooltip: "Import a prompt using normal / encoded json.",
+                click: () => this.mainNodes.openImportWindow(),
+            },
+            {
+                text: "load file",
+                tooltip: "Load a prompt from a stable-diffusion output file (exif metadata), or a json file.",
+                click: this.openSelectFile.bind(this),
+            },
+        ];
 
         this.composeButton = new ComposeButton(this);
         this.clearPromptButton = new ClearPromptButton(this);
@@ -76,23 +77,34 @@ export default class Editor {
                     <div class="Header">
                         <div class="LeftSide">
                             <label class="BetterPromptTitle">⠕ BetterPrompt Editor ⠪</label>
-                            <a href="https://github.com/realwumbl3/sd-webui-BetterPrompt" target="_blank" class="Button">GitHub</a>
+                            <a href="https://github.com/realwumbl3/sd-webui-BetterPrompt" target="_blank" class="Button"
+                                >GitHub</a
+                            >
                             ${this.betterPromptHint}
                         </div>
-                        <div this=right_side class="RightSide">
+                        <div this="right_side" class="RightSide">
                             <div this="send_to_other" class="Button" zyx-click="${this.sendToOtherEditor.bind(this)}">
                                 Send to ${this.tabname === "txt2img" ? "img2img" : "txt2img"}
                             </div>
-                            <div zyx-click="${this.fitHeight.bind(this)}" class="Button FitHeight"
-                                zyx-mouseenter="${_ => this.setHint("Fit the height of the editor to the content.", { ml: this.right_side })}"
-                            >&lt &gt</div>
+                            <div
+                                zyx-click="${this.fitHeight.bind(this)}"
+                                class="Button FitHeight"
+                                zyx-mouseenter="${(_) =>
+                                    this.setHint("Fit the height of the editor to the content.", {
+                                        ml: this.right_side,
+                                    })}"
+                            >
+                                &lt &gt
+                            </div>
                         </div>
                     </div>
-                    <div this=main_editor class="MainEditor"
-                        zyx-dragenter="${_ => this.dragEnter(_)}"
-                        zyx-dragstart="${_ => this.dragStart(_)}"
-                        zyx-dragend="${_ => this.dragEnd(_)}"
-                        zyx-dragover="${_ => this.dragState.dragTarget && _.preventDefault()}"
+                    <div
+                        this="main_editor"
+                        class="MainEditor"
+                        zyx-dragenter="${(_) => this.dragEnter(_)}"
+                        zyx-dragstart="${(_) => this.dragStart(_)}"
+                        zyx-dragend="${(_) => this.dragEnd(_)}"
+                        zyx-dragover="${(_) => this.dragState.dragTarget && _.e.preventDefault()}"
                     >
                         ${this.mainNodes}
                     </div>
@@ -101,13 +113,11 @@ export default class Editor {
                             ${this.composeButton}
                             <div class="Column">
                                 <div class="Row Status">
-                                    <div class="Status">
-                                        
-                                    </div>
+                                    <div class="Status"></div>
                                 </div>
                                 <div class="Row Manage">
                                     ${this.clearPromptButton}
-                                    ${this.BUTTONS.map(button => new EditorButton(this, button))}
+                                    ${this.BUTTONS.map((button) => new EditorButton(this, button))}
                                 </div>
                             </div>
                         </div>
@@ -133,7 +143,7 @@ export default class Editor {
     }
 
     copyStateToClipboard() {
-        navigator.clipboard.writeText(JSON.stringify(this.mainNodes.culmJson(), null, 1))
+        navigator.clipboard.writeText(JSON.stringify(this.mainNodes.culmJson(), null, 1));
     }
 
     onNodesModified(event, e) {
@@ -171,11 +181,11 @@ export default class Editor {
     dragReorder(e) {
         const { lastDragged, dragTarget } = this.dragState;
         const draggedNodeField = getNodeField(dragTarget.closest(".NodeField"));
-        const draggedDomArray = draggedNodeField.nodefield.liveDomList
+        const draggedDomArray = draggedNodeField.nodefield.liveDomList;
         const draggedNode = draggedDomArray.get(dragTarget);
         if (!draggedNode) return;
         const targetNodeField = getNodeField(lastDragged.closest(".NodeField"));
-        const targetDomArray = targetNodeField.nodefield.liveDomList
+        const targetDomArray = targetNodeField.nodefield.liveDomList;
         const targetNode = targetDomArray.get(lastDragged);
         // console.log({ dragTarget, lastDragged, targetNode, draggedNode });
         if (targetNode.type === "group" && targetNode.field.nodes.length < 1) {
@@ -187,13 +197,12 @@ export default class Editor {
         const nodeFieldRect = lastDragged.getBoundingClientRect();
         const atBottomHalf = e.clientY - nodeFieldRect.top > heightHalf;
         draggedNode.moveNodefields(targetNodeField);
-        const targetNodeIndex = targetNodeField.nodes.indexOf(targetNode)
-        const newIndex = targetNodeIndex + (atBottomHalf ? 1 : 0)
+        const targetNodeIndex = targetNodeField.nodes.indexOf(targetNode);
+        const newIndex = targetNodeIndex + (atBottomHalf ? 1 : 0);
         targetNodeField.insertNode(draggedNode, newIndex);
         // console.log({ lastDragged, targetNodeIndex, atBottomHalf, newIndex, nodes: [...targetNodeField.nodes] });
         // console.log({ resultingNodes: [...targetNodeField.nodes] });
     }
-
 
     loadDemoState() {
         this.mainNodes.loadJson(Demo);
@@ -216,9 +225,7 @@ export default class Editor {
     }
 
     clickTab(which) {
-        const tabs = Object.fromEntries(
-            [...this.tabNav.children].map((tab) => [tab.innerText, tab])
-        );
+        const tabs = Object.fromEntries([...this.tabNav.children].map((tab) => [tab.innerText, tab]));
         const tab = tabs[which];
         tab.click();
     }
@@ -236,7 +243,6 @@ export default class Editor {
             reader.onload = async () => {
                 const fileContent = reader.result?.replace(/\0/g, ""); // remove null bytes (jpeg exif)
                 fileContent && this.loadJson(fileContent);
-
             };
             reader.readAsText(file);
             fileInput.remove();
@@ -259,7 +265,7 @@ export default class Editor {
     }
 
     setInpaintPaddingLimit(limit) {
-        const slidercontainer = this.queryTab(_ => `#${_}_inpaint_full_res_padding`);
+        const slidercontainer = this.queryTab((_) => `#${_}_inpaint_full_res_padding`);
         const inputs = slidercontainer.querySelectorAll("input");
         for (const input of inputs) {
             input.setAttribute("max", limit || 256);
@@ -280,8 +286,12 @@ export function recognizeData(data) {
 }
 
 function highlightNode(node, color) {
-    node.classList.add("highlighted"); node.style.setProperty("--highlight-color", color || "orange");
-    zyX(node).delay("highlight", 300, () => { node.classList.remove("highlighted"); node.style.removeProperty("--highlight-color") });
+    node.classList.add("highlighted");
+    node.style.setProperty("--highlight-color", color || "orange");
+    zyX(node).delay("highlight", 300, () => {
+        node.classList.remove("highlighted");
+        node.style.removeProperty("--highlight-color");
+    });
 }
 
 class EditorButton {
@@ -291,10 +301,14 @@ class EditorButton {
         this.click = click;
         this.tooltip = tooltip || "";
         html`
-            <div this=main class="Button" 
+            <div
+                this="main"
+                class="Button"
                 zyx-click="${this.onClick.bind(this)}"
-                zyx-mouseenter="${_ => editor.setHint(this.tooltip, { ml: this.main })}"
-            >${this.text}</div>
+                zyx-mouseenter="${(_) => editor.setHint(this.tooltip, { ml: this.main })}"
+            >
+                ${this.text}
+            </div>
         `.bind(this);
     }
 
@@ -305,14 +319,26 @@ class EditorButton {
 
 class ClearPromptButton {
     /**
-     * @param {Editor} editor    
+     * @param {Editor} editor
      */
     constructor(editor) {
         html`
-            <div this=main class="ClearPrompt Button" zyx-mouseenter="${_ => editor.setHint("Clear the prompt.", { ml: this.main })}">
-                <div this=clear class="Button" zyx-click="${_ => this.main.classList.add("active")}">Clear</div>
-                <div this=cancel class="Button Cancel" zyx-click="${_ => this.main.classList.remove("active")}">No</div>
-                <div this=confirm class="Button Confirm" zyx-click="${_ => editor.mainNodes.clear() + this.main.classList.remove("active")}">Yes</div>
+            <div
+                this="main"
+                class="ClearPrompt Button"
+                zyx-mouseenter="${(_) => editor.setHint("Clear the prompt.", { ml: this.main })}"
+            >
+                <div this="clear" class="Button" zyx-click="${(_) => this.main.classList.add("active")}">Clear</div>
+                <div this="cancel" class="Button Cancel" zyx-click="${(_) => this.main.classList.remove("active")}">
+                    No
+                </div>
+                <div
+                    this="confirm"
+                    class="Button Confirm"
+                    zyx-click="${(_) => editor.mainNodes.clear() + this.main.classList.remove("active")}"
+                >
+                    Yes
+                </div>
             </div>
         `.bind(this);
     }
@@ -322,29 +348,34 @@ class BetterPromptHintInfo {
     constructor(editor) {
         this.editor = editor;
         html`
-            <div this=main class="BetterPromptHintInfo">    
-                <div this=hint class="Hint"><span>|</span><span this=tooltip></span></div>
-                <div this=info class="Info"></div>
-            </div>                                        
-
+            <div this="main" class="BetterPromptHintInfo">
+                <div this="hint" class="Hint"><span>|</span><span this="tooltip"></span></div>
+                <div this="info" class="Info"></div>
+            </div>
         `.bind(this);
     }
 
     setHint(text, { ml, duration } = {}) {
         this.tooltip.innerText = text;
-        zyX(this.tooltip).delay("tooltip", duration || 2000, () => { this.tooltip.innerText = "" });
+        zyX(this.tooltip).delay("tooltip", duration || 2000, () => {
+            this.tooltip.innerText = "";
+        });
         ml && ml.addEventListener("mouseleave", () => zyX(this.tooltip).instant("tooltip"), { once: true });
     }
-
 }
 
 class ComposeButton {
     constructor(editor) {
         this.editor = editor;
         html`
-            <div this=main class="Compose" zyx-click="${() => this.editor.composePrompt()}"
-                zyx-mouseenter="${_ => editor.setHint("Compose the prompt into the text area.", { ml: this.main })}"
-            >COMPOSE</div>
+            <div
+                this="main"
+                class="Compose"
+                zyx-click="${() => this.editor.composePrompt()}"
+                zyx-mouseenter="${(_) => editor.setHint("Compose the prompt into the text area.", { ml: this.main })}"
+            >
+                COMPOSE
+            </div>
         `.bind(this);
     }
 
