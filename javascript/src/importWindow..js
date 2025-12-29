@@ -1,4 +1,4 @@
-import zyX, { html, sleep, getDomArray } from "./zyX-es6.js";
+import zyX, { html } from "./zyX-es6.js";
 
 import NodeField, { getNodeField } from "./nodefield.js";
 

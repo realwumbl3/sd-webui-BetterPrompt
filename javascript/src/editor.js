@@ -1,4 +1,4 @@
-import zyX, { html, sleep, getDomArray } from "./zyX-es6.js";
+import zyX, { html, sleep } from "./zyX-es6.js";
 import { ResolutionPicker } from "./resolutionPicker.js";
 import { getNodeClass } from "./node.js";
 import { updateInput } from "./util.js";
@@ -171,11 +171,11 @@ export default class Editor {
     dragReorder(e) {
         const { lastDragged, dragTarget } = this.dragState;
         const draggedNodeField = getNodeField(dragTarget.closest(".NodeField"));
-        const draggedDomArray = getDomArray(draggedNodeField.nodefield);
+        const draggedDomArray = draggedNodeField.nodefield.liveDomList
         const draggedNode = draggedDomArray.get(dragTarget);
         if (!draggedNode) return;
         const targetNodeField = getNodeField(lastDragged.closest(".NodeField"));
-        const targetDomArray = getDomArray(targetNodeField.nodefield);
+        const targetDomArray = targetNodeField.nodefield.liveDomList
         const targetNode = targetDomArray.get(lastDragged);
         // console.log({ dragTarget, lastDragged, targetNode, draggedNode });
         if (targetNode.type === "group" && targetNode.field.nodes.length < 1) {

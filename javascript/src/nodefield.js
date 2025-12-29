@@ -1,4 +1,4 @@
-import zyX, { html, ZyXArray, getDomArray, WeakRefSet } from "./zyX-es6.js";
+import zyX, { html, ZyXArray,  WeakRefSet } from "./zyX-es6.js";
 import { getNodeClass } from "./node.js";
 import { shiftArrayElement } from "./util.js";
 import { recognizeData } from "./editor.js";
